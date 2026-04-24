@@ -19,13 +19,20 @@
   # environment.
   home.packages = [
     pkgs.zellij
-    pkgs.starship
   ];
 
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
   home.file.".config/zellij/config.kdl".source = ./zellij/config.kdl;
+
+  programs.starship.enable = true;
+
   home.file.".config/starship.toml".source = ./starship.toml;
+
+  programs.zsh = {
+    enable = true;
+    envExtra = ''
+      export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
+    '';
+  };
 
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. These will be explicitly sourced when using a
