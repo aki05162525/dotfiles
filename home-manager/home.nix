@@ -19,6 +19,8 @@
   # environment.
   home.packages = [
     pkgs.zellij
+    pkgs.direnv
+    pkgs.nix-direnv
   ];
 
   home.file.".config/zellij/config.kdl".source = ./zellij/config.kdl;
@@ -36,6 +38,9 @@
     };
     envExtra = ''
       export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
+    '';
+    initExtra = ''
+      eval "$(direnv hook zsh)"
     '';
   };
 
