@@ -1,6 +1,10 @@
 { config, pkgs, ... }:
 
 {
+  imports = [
+    ./mise.nix
+  ];
+
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "akihiro";
@@ -43,7 +47,7 @@
       g = "git";
     };
     envExtra = ''
-      export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
+      export PATH="$HOME/.local/bin:$PATH"
     '';
     initContent = ''
       eval "$(direnv hook zsh)"
