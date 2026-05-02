@@ -19,6 +19,7 @@
   # environment.
   home.packages = with pkgs; [
     zellij
+    git
     direnv
     nixfmt
     nix-direnv
@@ -29,6 +30,10 @@
   programs.starship.enable = true;
 
   home.file.".config/starship.toml".source = ./starship.toml;
+
+  home.file = {
+    ".gitconfig".source = ./git/.gitconfig;
+  };
 
   programs.zsh = {
     enable = true;
