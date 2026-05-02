@@ -39,7 +39,7 @@
     envExtra = ''
       export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
     '';
-    initExtra = ''
+    initContent = ''
       eval "$(direnv hook zsh)"
     '';
   };
