@@ -17,10 +17,11 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
-    pkgs.zellij
-    pkgs.direnv
-    pkgs.nix-direnv
+  home.packages = with pkgs; [
+    zellij
+    direnv
+    nixfmt
+    nix-direnv
   ];
 
   home.file.".config/zellij/config.kdl".source = ./zellij/config.kdl;
@@ -34,7 +35,7 @@
     shellAliases = {
       zj = "zellij";
       ll = "ls -la";
-      g  = "git";
+      g = "git";
     };
     envExtra = ''
       export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
