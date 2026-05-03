@@ -2,12 +2,12 @@
 
 {
   imports = [
-    ./mise.nix
-    ./direnv.nix
-    ./starship.nix
-    ./zellij.nix
-    ./git.nix
-    ./zsh.nix
+    ./mise
+    ./direnv
+    ./starship
+    ./zellij
+    ./git
+    ./zsh
   ];
 
   home.username = "akihiro";
