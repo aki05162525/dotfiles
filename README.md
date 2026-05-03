@@ -4,6 +4,7 @@ WSL (Ubuntu) 上の Home Manager (flake構成) で管理する個人 dotfiles。
 
 ## Docs
 
+- [新しいマシンでのセットアップ手順](docs/setup.md) — 別PCでこのdotfilesを使い始めるとき
 - [ツール管理の役割分担](docs/tool-management.md) — Nix / mise / corepack / pnpm 等のレイヤー構造と責務
 
 ## 重要なコマンド

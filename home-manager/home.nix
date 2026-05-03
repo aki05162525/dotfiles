@@ -10,8 +10,7 @@
     ./zsh
   ];
 
-  home.username = "akihiro";
-  home.homeDirectory = "/home/akihiro";
+  # username / homeDirectory は flake.nix で注入される
 
   # Home Manager のリリースバージョンに紐づくため、原則変更しない。
   # 変更する場合はリリースノートを参照すること。
