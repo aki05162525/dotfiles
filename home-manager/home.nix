@@ -3,6 +3,7 @@
 {
   imports = [
     ./mise.nix
+    ./direnv.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -24,9 +25,7 @@
   home.packages = with pkgs; [
     zellij
     git
-    direnv
     nixfmt
-    nix-direnv
   ];
 
   home.file.".config/zellij/config.kdl".source = ./zellij/config.kdl;
@@ -48,9 +47,6 @@
     };
     envExtra = ''
       export PATH="$HOME/.local/bin:$PATH"
-    '';
-    initContent = ''
-      eval "$(direnv hook zsh)"
     '';
   };
 
