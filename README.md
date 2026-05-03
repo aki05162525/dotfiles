@@ -2,6 +2,10 @@
 
 WSL (Ubuntu) 上の Home Manager (flake構成) で管理する個人 dotfiles。
 
+## Docs
+
+- [ツール管理の役割分担](docs/tool-management.md) — Nix / mise / corepack / pnpm 等のレイヤー構造と責務
+
 ## 重要なコマンド
 
 ### 設定の反映
