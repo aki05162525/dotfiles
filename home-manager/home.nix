@@ -6,6 +6,7 @@
     ./direnv.nix
     ./starship.nix
     ./zellij.nix
+    ./git.nix
   ];
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -25,13 +26,9 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-    git
     nixfmt
+    gh
   ];
-
-  home.file = {
-    ".gitconfig".source = ./git/.gitconfig;
-  };
 
   programs.zsh = {
     enable = true;

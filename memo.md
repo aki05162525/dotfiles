@@ -6,11 +6,7 @@
 - [x] direnv.nix を作成 + `programs.direnv` モジュールへリファクタ
 - [x] starship.nix を切り出し
 - [x] zellij.nix を切り出し
-
-## 優先度低: git.nix
-
-`home.file.".gitconfig".source = ./git/.gitconfig;` のままモジュール分割するか、
-それとも `programs.git` モジュールで宣言的に書き直すかを決めてから着手する。
+- [x] git.nix を作成 + `programs.git` (settings方式) へリファクタ
 
 ## 優先度低: zsh.nix
 
