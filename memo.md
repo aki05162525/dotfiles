@@ -14,8 +14,10 @@
 
 ## 残タスク(やる気が出たら)
 
-- apt の重い未使用パッケージ整理(texlive-full, mysql, postgresql, qemu, openjdk-21, maven 等)
-- `gh` の credential helper を `programs.git.settings` から外して `programs.git.includes` で別ファイル管理にする(再現性より柔軟性を取る場合)
+## 完了(2回目)
+
+- [x] apt の重い未使用パッケージ整理(mysql, postgresql, qemu, openjdk-21, maven, context, byobu, yarn 等)
+- [x] jq / ripgrep を Home Manager 管理に追加
 
 ## 注意
 

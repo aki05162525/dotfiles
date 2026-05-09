@@ -6,7 +6,7 @@
     enableZshIntegration = true;
     globalConfig = {
       tools = {
-        node = "22";
+        node = "24";
         go = "1.26";
       };
     };

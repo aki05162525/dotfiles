@@ -21,6 +21,8 @@
     gh
     uv
     trufflehog
+    jq
+    ripgrep
   ];
 
   programs.home-manager.enable = true;
