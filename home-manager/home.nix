@@ -4,6 +4,7 @@
   imports = [
     ./mise
     ./direnv
+    ./fzf
     ./starship
     ./zellij
     ./git

@@ -398,7 +398,8 @@ default_layout "welcome"
 // copy_command "pbcopy"                     // osx
 // 
 // copy_command "pbcopy"
- 
+copy_command "clip.exe"
+
 // Choose the destination for copied text
 // Allows using the primary selection buffer (on x11/wayland) instead of the system clipboard.
 // Does not apply when using copy_command.
