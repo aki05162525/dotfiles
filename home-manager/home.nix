@@ -23,6 +23,7 @@
     trufflehog
     jq
     ripgrep
+    supabase-cli
   ];
 
   programs.home-manager.enable = true;
