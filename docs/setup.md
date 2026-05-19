@@ -162,6 +162,20 @@ git add <file>
 home-manager switch --flake .#akihiro
 ```
 
+### `Ctrl+Shift+C` でコピーと同時にコマンドが止まる（Windows Terminal + Zellij）
+
+Windows Terminal の `compatibility.input.forceVT: true` が有効だと、Windows Terminal がコピーアクションを実行した後もキーイベントを Zellij に転送する。Zellij 側にバインドがないと `Ctrl+C`（SIGINT）として解釈されてコマンドが止まる。
+
+**修正：** `home-manager/zellij/config.kdl` の `keybinds` ブロック内に `normal` セクションを追加してキャプチャする:
+
+```kdl
+normal {
+    bind "Ctrl Shift c" { Copy; }
+}
+```
+
+Windows Terminal 側の keybindings では `"keys": "ctrl+shift+c"` にしておく（`ctrl+c` に割り当てると SIGINT と混在する）。
+
 ### `USER: unbound variable`
 
 シェルが `env -i` 等で環境変数を消した状態で起動されたとき。新しいターミナルを開き直すか手動で設定:
