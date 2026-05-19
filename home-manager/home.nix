@@ -24,6 +24,8 @@
     jq
     ripgrep
     supabase-cli
+    vercel
+    net-tools
   ];
 
   programs.home-manager.enable = true;
