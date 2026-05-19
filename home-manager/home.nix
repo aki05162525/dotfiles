@@ -24,7 +24,6 @@
     jq
     ripgrep
     supabase-cli
-    vercel
     net-tools
   ];
 
