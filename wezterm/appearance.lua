@@ -38,6 +38,16 @@ function M.apply(config)
     "JetBrainsMono Nerd Font",
   })
   config.font_size = 12.0
+  config.colors = {
+    foreground   = "#abb2bf",
+    selection_bg = "#3e4452",
+    selection_fg = "#abb2bf",
+    split        = "#61afef",
+  }
+  config.inactive_pane_hsb = {
+    saturation = 0.5,
+    brightness = 0.4,
+  }
   config.use_fancy_tab_bar = true
   config.tab_bar_at_bottom = false
   config.window_frame = {
