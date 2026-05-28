@@ -98,30 +98,18 @@ WSL を再起動して反映。
 
 ### WezTerm の導入と設定反映
 
-Windows 側で WezTerm をインストール:
+Windows 側で WezTerm をインストールし、WSL 側の dotfiles から設定をコピーする:
 
 ```powershell
 winget install wez.wezterm
 ```
-
-WSL 側の dotfiles から Windows 側の WezTerm 設定へ反映:
 
 ```sh
 cd ~/dotfiles
 scripts/install-wezterm-config.sh
 ```
 
-このスクリプトは以下を配置する:
-
-```text
-C:\Users\<Windowsユーザー>\.wezterm.lua
-C:\Users\<Windowsユーザー>\.config\wezterm\wezterm.lua
-C:\Users\<Windowsユーザー>\.config\wezterm\appearance.lua
-C:\Users\<Windowsユーザー>\.config\wezterm\keys.lua
-C:\Users\<Windowsユーザー>\.config\wezterm\platform.lua
-```
-
-WezTerm を開き直して、WSL のホームに入ることを確認:
+WezTerm を開き直して、WSL のホームに入ることを確認する:
 
 ```sh
 pwd
@@ -133,16 +121,10 @@ pwd
 /home/<WSLユーザー>
 ```
 
-WSL ディストリビューション名が `Ubuntu` ではない場合は、Windows 側で確認して:
+WSL ディストリビューション名が `Ubuntu` ではない場合は、Windows 側で確認し、必要に応じて `wezterm/platform.lua` の domain 名を合わせる:
 
 ```powershell
 wsl -l -v
-```
-
-`wezterm/platform.lua` の WSL domain 名を合わせる:
-
-```lua
-config.default_domain = "WSL:<ディストリビューション名>"
 ```
 
 WezTerm 設定を変更したときは、毎回以下で Windows 側へ反映する:
@@ -221,24 +203,16 @@ home-manager switch --flake .#akihiro
 
 ### WezTerm が `cmd.exe` で起動してしまう
 
-Windows 側に WezTerm 設定が未反映。WSL 側で反映スクリプトを実行:
+Windows 側に WezTerm 設定が未反映。WSL 側で反映スクリプトを実行し、WezTerm をウィンドウごと閉じて開き直す:
 
 ```sh
 cd ~/dotfiles
 scripts/install-wezterm-config.sh
 ```
 
-その後、WezTerm をウィンドウごと閉じて開き直す。
-
 ### WezTerm のペイン分割時に現在ディレクトリを引き継がない
 
-`wezterm/platform.lua` で Windows の場合は WSL domain を使う。`Ubuntu` があれば優先し、なければ WezTerm が検出した最初の WSL distro を使う:
-
-```lua
-config.wsl_domains = wezterm.default_wsl_domains()
-```
-
-また、`home-manager/zsh/default.nix` で WezTerm に現在ディレクトリを通知する OSC 7 を出している。Home Manager を再反映して、WezTerm を開き直す:
+`home-manager/zsh/default.nix` で WezTerm に現在ディレクトリを通知する OSC 7 を出している。Home Manager を再反映して、WezTerm を開き直す:
 
 ```sh
 home-manager switch --flake .#akihiro

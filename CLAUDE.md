@@ -84,6 +84,26 @@ home-manager switch --flake .#akihiro
 
 **新規 `.nix` ファイルを追加した場合は必ず `git add` してから switch する**こと(Nix flake は git tracked なファイルしか見ない)。
 
+## WezTerm 設定の更新手順
+
+WezTerm は Windows 側アプリなので、設定実体はこのリポジトリの `wezterm/` で管理し、変更後に Windows 側へコピーする。
+
+`wezterm/` の役割:
+
+- `wezterm.lua`: エントリポイント。各設定モジュールを読み込む
+- `appearance.lua`: 配色、透過、フォントなど見た目の設定
+- `keys.lua`: キーバインド
+- `platform.lua`: Windows / WSL など環境依存の設定
+- `loader.lua`: Windows 側の `~/.wezterm.lua` から repo 管理の設定を読み込むためのローダー
+
+編集後は必ずリポジトリルートで反映スクリプトを実行する:
+
+```sh
+scripts/install-wezterm-config.sh
+```
+
+このスクリプトは `wezterm/*.lua` と `loader.lua` を Windows 側の WezTerm 設定へコピーする。反映確認は WezTerm を開き直すか設定をリロードして行う。
+
 ## フォーマット
 
 `pkgs.nixfmt` (公式フォーマッタ)を導入済み。変更後はこれをかける:
