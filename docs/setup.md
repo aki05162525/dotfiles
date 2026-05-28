@@ -6,6 +6,7 @@ WSL (Ubuntu) + Home Manager (flake構成) を前提とした手順。
 ## 前提
 
 - WSL 2 (Ubuntu) がインストール済み
+- Windows 側に WezTerm をインストール可能
 - `sudo` 権限あり
 - インターネット接続あり
 
@@ -50,7 +51,7 @@ cd ~/dotfiles
 ```nix
 let
   # ===== マシンごとに変わる値はここ =====
-  username = "akihiro";                 # ← 新マシンのユーザー名に合わせる
+  username = "akihiro";                 # ← 新マシンのWSLユーザー名に合わせる
   homeDirectory = "/home/${username}";  # ← Mac なら "/Users/${username}"
   system = "x86_64-linux";              # ← Mac なら "aarch64-darwin"
   # ====================================
@@ -95,6 +96,62 @@ WSL を再起動して反映。
 
 ## 7. ポストセットアップ
 
+### WezTerm の導入と設定反映
+
+Windows 側で WezTerm をインストール:
+
+```powershell
+winget install wez.wezterm
+```
+
+WSL 側の dotfiles から Windows 側の WezTerm 設定へ反映:
+
+```sh
+cd ~/dotfiles
+scripts/install-wezterm-config.sh
+```
+
+このスクリプトは以下を配置する:
+
+```text
+C:\Users\<Windowsユーザー>\.wezterm.lua
+C:\Users\<Windowsユーザー>\.config\wezterm\wezterm.lua
+C:\Users\<Windowsユーザー>\.config\wezterm\appearance.lua
+C:\Users\<Windowsユーザー>\.config\wezterm\keys.lua
+C:\Users\<Windowsユーザー>\.config\wezterm\platform.lua
+```
+
+WezTerm を開き直して、WSL のホームに入ることを確認:
+
+```sh
+pwd
+```
+
+期待値:
+
+```text
+/home/<WSLユーザー>
+```
+
+WSL ディストリビューション名が `Ubuntu` ではない場合は、Windows 側で確認して:
+
+```powershell
+wsl -l -v
+```
+
+`wezterm/platform.lua` の WSL domain 名を合わせる:
+
+```lua
+config.default_domain = "WSL:<ディストリビューション名>"
+```
+
+WezTerm 設定を変更したときは、毎回以下で Windows 側へ反映する:
+
+```sh
+cd ~/dotfiles
+scripts/install-wezterm-config.sh
+```
+
 ### gh の認証
 
 ```sh
@@ -133,7 +190,7 @@ curl -fsSL https://claude.ai/install.sh | sh
 
 ```sh
 # 主要ツールが Nix 管理になっているか
-which mise node git gh direnv starship zellij zsh uv trufflehog jq
+which mise node git gh direnv starship zsh uv trufflehog jq
 
 # mise のランタイム
 mise current
@@ -162,19 +219,48 @@ git add <file>
 home-manager switch --flake .#akihiro
 ```
 
-### `Ctrl+Shift+C` でコピーと同時にコマンドが止まる（Windows Terminal + Zellij）
+### WezTerm が `cmd.exe` で起動してしまう
 
-Windows Terminal の `compatibility.input.forceVT: true` が有効だと、Windows Terminal がコピーアクションを実行した後もキーイベントを Zellij に転送する。Zellij 側にバインドがないと `Ctrl+C`（SIGINT）として解釈されてコマンドが止まる。
+Windows 側に WezTerm 設定が未反映。WSL 側で反映スクリプトを実行:
 
-**修正：** `home-manager/zellij/config.kdl` の `keybinds` ブロック内に `normal` セクションを追加してキャプチャする:
-
-```kdl
-normal {
-    bind "Ctrl Shift c" { Copy; }
-}
+```sh
+cd ~/dotfiles
+scripts/install-wezterm-config.sh
 ```
 
-Windows Terminal 側の keybindings では `"keys": "ctrl+shift+c"` にしておく（`ctrl+c` に割り当てると SIGINT と混在する）。
+その後、WezTerm をウィンドウごと閉じて開き直す。
+
+### WezTerm のペイン分割時に現在ディレクトリを引き継がない
+
+`wezterm/platform.lua` で Windows の場合は WSL domain を使う:
+
+```lua
+config.default_domain = "WSL:Ubuntu"
+```
+
+また、`home-manager/zsh/default.nix` で WezTerm に現在ディレクトリを通知する OSC 7 を出している。Home Manager を再反映して、WezTerm を開き直す:
+
+```sh
+home-manager switch --flake .#akihiro
+```
+
+### Windows Terminal + Zellij で `Ctrl+Shift+C` が中断になる
+
+この dotfiles は現在、常用端末を Windows Terminal + Zellij ではなく WezTerm 主役に寄せている。Windows Terminal では `Ctrl+Shift+C` がアプリ側へ `Ctrl+C` として流れる環境があり、Zellij 側では区別できない。
+
+確認:
+
+```sh
+showkey -a
+```
+
+`Ctrl+Shift+C` が以下になる場合は、端末アプリ側ですでに `Ctrl+C` に潰れている:
+
+```text
+^C        3 0003 0x03
+```
+
+この場合は WezTerm を使うか、Windows Terminal のコピーキーを `Ctrl+Insert` などへ変更する。
 
 ### `USER: unbound variable`
 

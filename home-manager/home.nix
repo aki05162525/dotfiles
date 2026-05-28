@@ -6,7 +6,6 @@
     ./direnv
     ./fzf
     ./starship
-    ./zellij
     ./git
     ./zsh
   ];

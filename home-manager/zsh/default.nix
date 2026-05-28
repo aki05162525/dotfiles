@@ -4,12 +4,19 @@
   programs.zsh = {
     enable = true;
     shellAliases = {
-      zj = "zellij";
       ll = "ls -la";
       g = "git";
     };
     envExtra = ''
       export PATH="$HOME/.local/bin:$PATH"
+    '';
+    initContent = ''
+      if [[ "$TERM_PROGRAM" == "WezTerm" ]]; then
+        function _wezterm_osc7_pwd() {
+          printf '\e]7;file://%s%s\e\\' "$HOST" "$PWD"
+        }
+        precmd_functions+=(_wezterm_osc7_pwd)
+      fi
     '';
     plugins = [
       {
