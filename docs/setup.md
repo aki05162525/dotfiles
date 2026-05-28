@@ -232,10 +232,10 @@ scripts/install-wezterm-config.sh
 
 ### WezTerm のペイン分割時に現在ディレクトリを引き継がない
 
-`wezterm/platform.lua` で Windows の場合は WSL domain を使う:
+`wezterm/platform.lua` で Windows の場合は WSL domain を使う。`Ubuntu` があれば優先し、なければ WezTerm が検出した最初の WSL distro を使う:
 
 ```lua
-config.default_domain = "WSL:Ubuntu"
+config.wsl_domains = wezterm.default_wsl_domains()
 ```
 
 また、`home-manager/zsh/default.nix` で WezTerm に現在ディレクトリを通知する OSC 7 を出している。Home Manager を再反映して、WezTerm を開き直す:
