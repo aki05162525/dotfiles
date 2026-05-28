@@ -1,0 +1,3 @@
+return {
+  { name = "dotfiles", cwd = "/home/akihiro/dotfiles" },
+}

@@ -4,3 +4,4 @@
 *.swo
 .DS_Store
 setting.json
+wezterm/workspace.local.lua

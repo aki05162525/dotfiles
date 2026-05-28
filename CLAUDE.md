@@ -30,6 +30,8 @@ dotfiles/
 │  ├─ appearance.lua
 │  ├─ keys.lua
 │  ├─ platform.lua
+│  ├─ workspace.lua
+│  ├─ workspace.local.lua.example
 │  └─ loader.lua
 └─ scripts/
    └─ install-wezterm-config.sh
@@ -94,6 +96,9 @@ WezTerm は Windows 側アプリなので、設定実体はこのリポジトリ
 - `appearance.lua`: 配色、透過、フォントなど見た目の設定
 - `keys.lua`: キーバインド
 - `platform.lua`: Windows / WSL など環境依存の設定
+- `workspace.lua`: workspace 切り替えの共通ロジック
+- `workspace.local.lua`: PC ごとの workspace 一覧。git 管理しない
+- `workspace.local.lua.example`: `workspace.local.lua` のサンプル
 - `loader.lua`: Windows 側の `~/.wezterm.lua` から repo 管理の設定を読み込むためのローダー
 
 編集後は必ずリポジトリルートで反映スクリプトを実行する:

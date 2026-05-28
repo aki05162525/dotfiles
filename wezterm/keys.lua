@@ -46,7 +46,6 @@ function M.apply(config)
     { key = "n", mods = "CTRL", action = act.ActivateKeyTable({ name = "resize", one_shot = false, timeout_milliseconds = 1500 }) },
     { key = "h", mods = "CTRL", action = act.ActivateKeyTable({ name = "move", one_shot = false, timeout_milliseconds = 1500 }) },
     { key = "s", mods = "CTRL", action = act.ActivateCopyMode },
-    { key = "o", mods = "CTRL", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
   }
 
   config.key_tables = {

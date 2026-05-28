@@ -134,6 +134,8 @@ cd ~/dotfiles
 scripts/install-wezterm-config.sh
 ```
 
+PC ごとの workspace 一覧は `wezterm/workspace.local.lua` に書く。このファイルは git 管理しない。
+
 ### gh の認証
 
 ```sh
