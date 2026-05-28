@@ -6,7 +6,7 @@
 
 ```
 Nix (Home Manager)
-  └─ mise本体, 各種CLI(git, gh, direnv, starship, zellij, jq, ...) を管理
+  └─ mise本体, 各種CLI(git, gh, direnv, starship, jq, ...) を管理
       └─ mise
           └─ Node, Go など言語ランタイムのバージョンを管理
               └─ corepack (Nodeに同梱)
@@ -19,7 +19,7 @@ Nix (Home Manager)
 
 | レイヤー | 役割 | 何を管理するか | 設定場所 |
 |---|---|---|---|
-| **Nix (Home Manager)** | グローバルCLIツールの導入と設定の宣言的管理 | mise本体, git, gh, direnv, starship, zellij など | `~/dotfiles/home-manager/` |
+| **Nix (Home Manager)** | グローバルCLIツールの導入と設定の宣言的管理 | mise本体, git, gh, direnv, starship など | `~/dotfiles/home-manager/` |
 | **mise** | 言語ランタイムのバージョン管理 | Node, Go, Python, Terraform など | グローバル: `~/.config/mise/config.toml` (Nix管理) / プロジェクト: `.tool-versions` |
 | **corepack** | Node エコシステムのパッケージマネージャ管理 | pnpm, yarn のバージョン | プロジェクトの `package.json` の `packageManager` フィールド |
 | **direnv** | プロジェクト別の環境変数 | DATABASE_URL, API_KEY など | プロジェクトの `.envrc` |

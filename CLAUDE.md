@@ -17,15 +17,22 @@ dotfiles/
 └─ home-manager/
    ├─ home.nix            # エントリ。ツール別モジュールを imports
    ├─ direnv/default.nix
+   ├─ fzf/default.nix
    ├─ git/default.nix
    ├─ mise/default.nix
    ├─ zsh/default.nix
    ├─ starship/
    │  ├─ default.nix
    │  └─ starship.toml
-   └─ zellij/
-      ├─ default.nix
-      └─ config.kdl
+   └─ ...
+├─ wezterm/               # Windows側へコピーして使う WezTerm 設定
+│  ├─ wezterm.lua
+│  ├─ appearance.lua
+│  ├─ keys.lua
+│  ├─ platform.lua
+│  └─ loader.lua
+└─ scripts/
+   └─ install-wezterm-config.sh
 ```
 
 ## 設定ファイル分割の方針
@@ -39,8 +46,8 @@ dotfiles/
   imports = [
     ./mise
     ./direnv
+    ./fzf
     ./starship
-    ./zellij
     ./git
     ./zsh
   ];
@@ -65,7 +72,7 @@ dotfiles/
 
 `pkgs` を参照する場合は `{ pkgs, ... }:` と明示する。**未使用引数は書かない**(例: `config` を使わないなら `{ pkgs, ... }:`)。
 
-設定ファイル(`.toml`, `.kdl` 等)を持つツールはフォルダ内に同居させ、`./<filename>` で参照する。
+設定ファイル(`.toml` 等)を持つツールはフォルダ内に同居させ、`./<filename>` で参照する。
 
 ## 適用コマンド
 
@@ -89,7 +96,8 @@ nixfmt flake.nix home-manager/home.nix home-manager/*/default.nix
 
 詳細は [docs/tool-management.md](docs/tool-management.md) 参照。要約:
 
-- **Nix (Home Manager)**: グローバルCLI(git, gh, mise, direnv, starship, zellij, jq, ripgrep など)
+- **Nix (Home Manager)**: グローバルCLI(git, gh, mise, direnv, starship, jq, ripgrep など)
+- **WezTerm**: Windows側ターミナルアプリ。設定実体は `wezterm/` で管理し、`scripts/install-wezterm-config.sh` で Windows 側へ反映する
 - **mise**: Node, Go など言語ランタイムのバージョン管理(プロジェクト別の `.tool-versions` 対応)
 - **corepack** (Node 同梱): pnpm, yarn のバージョン管理(`package.json` の `packageManager` フィールド)
 - **direnv**: プロジェクト別の環境変数(`.envrc`)
