@@ -2,8 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-win_user="$(cmd.exe /c echo %USERNAME% | tr -d '\r')"
-win_home="/mnt/c/Users/${win_user}"
+win_home="$(wslpath -u "$(cd /mnt/c && cmd.exe /c 'echo %USERPROFILE%' | tr -d '\r')")"
 config_dir="${win_home}/.config/wezterm"
 
 mkdir -p "${config_dir}"
