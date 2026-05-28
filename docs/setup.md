@@ -10,16 +10,11 @@ WSL (Ubuntu) + Home Manager (flake構成) を前提とした手順。
 - `sudo` 権限あり
 - インターネット接続あり
 
-## 1. 必須コマンドの導入
-
-```sh
-sudo apt update
-sudo apt install -y curl git
-```
-
-## 2. Nix のインストール
+## 1. Nix のインストール
 
 Determinate Systems の installer を使う(flake が標準で有効化される):
+
+> `curl` は Ubuntu WSL に標準で含まれている。入っていなければ `sudo apt install -y curl`。
 
 ```sh
 curl -fsSL https://install.determinate.systems/nix | sh -s -- install
@@ -37,14 +32,14 @@ exec $SHELL -l
 nix --version
 ```
 
-## 3. dotfiles をクローン
+## 2. dotfiles をクローン
 
 ```sh
-git clone https://github.com/aki05162525/dotfiles.git ~/dotfiles
+nix run nixpkgs#git -- clone https://github.com/aki05162525/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ```
 
-## 4. マシン固有の値を確認・修正
+## 3. マシン固有の値を確認・修正
 
 `flake.nix` を開いて、コメント `===== マシンごとに変わる値はここ =====` のブロック内を確認:
 
@@ -66,7 +61,7 @@ user = {
 };
 ```
 
-## 5. Home Manager を初回適用
+## 4. Home Manager を初回適用
 
 リポジトリルートで(ユーザー名が違う場合は `.#<username>` を読み替え):
 
@@ -86,7 +81,7 @@ home-manager switch --flake .#akihiro
 exec zsh
 ```
 
-## 6. ログインシェルを zsh に変更
+## 5. ログインシェルを zsh に変更
 
 ```sh
 chsh -s $(which zsh)
@@ -94,7 +89,7 @@ chsh -s $(which zsh)
 
 WSL を再起動して反映。
 
-## 7. ポストセットアップ
+## 6. ポストセットアップ
 
 ### WezTerm の導入と設定反映
 
@@ -160,17 +155,8 @@ corepack enable pnpm
 pnpm --version
 ```
 
-### Claude Code (任意)
 
-公式インストーラで導入(Nix管理しない方針):
-
-```sh
-curl -fsSL https://claude.ai/install.sh | sh
-```
-
-インストール後 `claude` コマンドが `~/.local/bin/claude` に配置される。
-
-## 8. 動作確認
+## 7. 動作確認
 
 ```sh
 # 主要ツールが Nix 管理になっているか
@@ -203,15 +189,6 @@ git add <file>
 home-manager switch --flake .#akihiro
 ```
 
-### WezTerm が `cmd.exe` で起動してしまう
-
-Windows 側に WezTerm 設定が未反映。WSL 側で反映スクリプトを実行し、WezTerm をウィンドウごと閉じて開き直す:
-
-```sh
-cd ~/dotfiles
-scripts/install-wezterm-config.sh
-```
-
 ### WezTerm のペイン分割時に現在ディレクトリを引き継がない
 
 `home-manager/zsh/default.nix` で WezTerm に現在ディレクトリを通知する OSC 7 を出している。Home Manager を再反映して、WezTerm を開き直す:
@@ -220,31 +197,6 @@ scripts/install-wezterm-config.sh
 home-manager switch --flake .#akihiro
 ```
 
-### Windows Terminal + Zellij で `Ctrl+Shift+C` が中断になる
-
-この dotfiles は現在、常用端末を Windows Terminal + Zellij ではなく WezTerm 主役に寄せている。Windows Terminal では `Ctrl+Shift+C` がアプリ側へ `Ctrl+C` として流れる環境があり、Zellij 側では区別できない。
-
-確認:
-
-```sh
-showkey -a
-```
-
-`Ctrl+Shift+C` が以下になる場合は、端末アプリ側ですでに `Ctrl+C` に潰れている:
-
-```text
-^C        3 0003 0x03
-```
-
-この場合は WezTerm を使うか、Windows Terminal のコピーキーを `Ctrl+Insert` などへ変更する。
-
-### `USER: unbound variable`
-
-シェルが `env -i` 等で環境変数を消した状態で起動されたとき。新しいターミナルを開き直すか手動で設定:
-
-```sh
-export USER=$(whoami)
-```
 
 ## 次のステップ
 
