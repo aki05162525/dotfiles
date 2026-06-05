@@ -32,7 +32,7 @@ end)
 
 function M.apply(config)
   config.color_scheme = "OneHalfDark"
-  config.window_background_opacity = 0.75
+  config.window_background_opacity = 0.85
   config.font = wezterm.font_with_fallback({
     "JetBrains Mono NL",
     "JetBrainsMono Nerd Font",
@@ -45,8 +45,8 @@ function M.apply(config)
     split        = "#61afef",
   }
   config.inactive_pane_hsb = {
-    saturation = 0.5,
-    brightness = 0.4,
+    saturation = 0.7,
+    brightness = 0.7,
   }
   config.use_fancy_tab_bar = true
   config.tab_bar_at_bottom = false
