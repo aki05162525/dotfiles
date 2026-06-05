@@ -17,10 +17,16 @@ case "$(uname -s)" in
       ln -sf "$f" "${config_dir}/${name}"
     done
 
-    echo "Linked ${config_dir}/wezterm.lua -> ${repo_root}/wezterm/wezterm.lua"
+    echo "Linked *.lua (except loader.lua) into ${config_dir}/"
     ;;
 
-  *)
+  Linux)
+    # WSL2 (Windows) のみ対応。素の Linux では Windows 側のパスが取れないので弾く。
+    if ! grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null; then
+      echo "Error: このスクリプトは WSL2 または macOS でのみ動作します(素の Linux は非対応)。" >&2
+      exit 1
+    fi
+
     # WSL (Windows): 設定実体は Windows 側にあるのでコピーする。
     win_home="$(wslpath -u "$(cd /mnt/c && cmd.exe /c 'echo %USERPROFILE%' | tr -d '\r')")"
     config_dir="${win_home}/.config/wezterm"
@@ -31,5 +37,10 @@ case "$(uname -s)" in
 
     echo "Installed ${config_dir}/wezterm.lua"
     echo "Installed ${win_home}/.wezterm.lua"
+    ;;
+
+  *)
+    echo "Error: 未対応の環境です($(uname -s))。WSL2 または macOS で実行してください。" >&2
+    exit 1
     ;;
 esac
