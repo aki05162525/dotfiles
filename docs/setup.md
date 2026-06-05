@@ -100,7 +100,10 @@ WSL を再起動して反映。
 
 ### WezTerm の導入と設定反映
 
-**WSL2 (Windows) の場合:** Windows 側で WezTerm をインストールし、WSL 側の dotfiles から設定をコピーする:
+**WSL2 (Windows) の場合:** Windows 側で WezTerm をインストールし、初回だけスクリプトを実行する。
+このスクリプトは Windows 側 `~/.wezterm.lua` を生成し、`\\wsl.localhost` 経由で WSL 側の
+dotfiles の `wezterm/` を直接参照させる(コピーはしない)。以降はリポジトリを編集して WezTerm を
+リロードすれば即反映される(再実行不要)。
 
 ```powershell
 winget install wez.wezterm
@@ -139,12 +142,7 @@ WSL ディストリビューション名が `Ubuntu` ではない場合は、Win
 wsl -l -v
 ```
 
-WezTerm 設定を変更したときは、WSL2 では毎回以下で Windows 側へ反映する(mac は symlink なので不要):
-
-```sh
-cd ~/dotfiles
-scripts/install-wezterm-config.sh
-```
+WezTerm 設定を変更したときは、WSL2 / mac とも **WezTerm をリロード(Ctrl+Shift+R)するだけ**で反映される(WSL2=UNC 直接参照 / mac=symlink のため、いずれもスクリプト再実行は不要)。`scripts/install-wezterm-config.sh` を再実行するのは、新しいマシンの初回か、リポジトリの置き場所(パス)を変えたときだけ。
 
 PC ごとの workspace 一覧は `wezterm/workspace.local.lua` に書く。このファイルは git 管理しない。
 

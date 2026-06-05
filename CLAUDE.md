@@ -92,7 +92,12 @@ home-manager switch --flake .#takagi@mac   # macOS (Apple Silicon)
 
 ## WezTerm 設定の更新手順
 
-WezTerm は Windows 側アプリなので、設定実体はこのリポジトリの `wezterm/` で管理し、変更後に Windows 側へコピーする。
+WezTerm は Windows 側アプリだが、設定実体はこのリポジトリの `wezterm/` で管理し、各 OS から**直接参照**させる(コピー運用はやめた)。
+
+- **WSL2 (Windows)**: Windows 側 `~/.wezterm.lua` から `\\wsl.localhost\<distro>\…\dotfiles\wezterm` を直接読む。`install-wezterm-config.sh` は **初回1回だけ** 実行すればよい。
+- **macOS**: `~/.config/wezterm` にリポジトリの `*.lua` を symlink する(`loader.lua` は Windows 専用なので除外)。
+
+どちらも編集後はスクリプト不要で、**WezTerm をリロード(Ctrl+Shift+R)するだけ**で反映される。
 
 `wezterm/` の役割:
 
@@ -105,13 +110,16 @@ WezTerm は Windows 側アプリなので、設定実体はこのリポジトリ
 - `workspace.local.lua.example`: `workspace.local.lua` のサンプル
 - `loader.lua`: Windows 側の `~/.wezterm.lua` から repo 管理の設定を読み込むためのローダー
 
-編集後は必ずリポジトリルートで反映スクリプトを実行する:
+新しいマシンのセットアップ時、またはリポジトリの置き場所(パス)を変えたときだけ、リポジトリルートで実行する:
 
 ```sh
 scripts/install-wezterm-config.sh
 ```
 
-このスクリプトは `wezterm/*.lua` と `loader.lua` を Windows 側の WezTerm 設定へコピーする。反映確認は WezTerm を開き直すか設定をリロードして行う。
+- WSL2 では Windows 側 `~/.wezterm.lua` を生成し、`WEZTERM_DOTFILES_CONFIG_DIR` にこのリポジトリの `wezterm/` を指す `\\wsl.localhost` UNC パスを書き込む。
+- macOS では `~/.config/wezterm` へ symlink を張る。
+
+日々の編集ではスクリプトを再実行する必要はなく、WezTerm をリロードすれば反映される。
 
 ## フォーマット
 

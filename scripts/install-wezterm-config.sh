@@ -27,16 +27,31 @@ case "$(uname -s)" in
       exit 1
     fi
 
-    # WSL (Windows): 設定実体は Windows 側にあるのでコピーする。
+    # WSL (Windows): コピーせず、Windows 側 WezTerm から \\wsl.localhost 経由で
+    # このリポジトリの wezterm/ を直接読ませる。これで「編集 → コピー」が不要になり、
+    # wezterm/*.lua を編集して WezTerm をリロードするだけで反映される。
+    distro="${WSL_DISTRO_NAME:-}"
+    if [ -z "${distro}" ]; then
+      echo "Error: WSL_DISTRO_NAME が取得できません(WSL 上で実行してください)。" >&2
+      exit 1
+    fi
+
     win_home="$(wslpath -u "$(cd /mnt/c && cmd.exe /c 'echo %USERPROFILE%' | tr -d '\r')")"
-    config_dir="${win_home}/.config/wezterm"
 
-    mkdir -p "${config_dir}"
-    cp "${repo_root}/wezterm/"*.lua "${config_dir}/"
-    cp "${repo_root}/wezterm/loader.lua" "${win_home}/.wezterm.lua"
+    # 例: //wsl.localhost/Ubuntu/home/akihiro/dotfiles/wezterm
+    # forward slash の UNC パスは Windows / WezTerm から問題なく読める。
+    unc_config_dir="//wsl.localhost/${distro}${repo_root}/wezterm"
 
-    echo "Installed ${config_dir}/wezterm.lua"
+    # loader.lua の先頭に設定ディレクトリ(UNC パス)を差し込んで生成する。
+    {
+      echo "WEZTERM_DOTFILES_CONFIG_DIR = \"${unc_config_dir}\""
+      cat "${repo_root}/wezterm/loader.lua"
+    } > "${win_home}/.wezterm.lua"
+
     echo "Installed ${win_home}/.wezterm.lua"
+    echo "  → ${unc_config_dir} を直接参照します(コピー不要)。"
+    echo "  今後は wezterm/*.lua を編集して WezTerm をリロード(Ctrl+Shift+R)するだけで反映されます。"
+    echo "  ※ workspace.local.lua は ${repo_root}/wezterm/workspace.local.lua に置いてください。"
     ;;
 
   *)
