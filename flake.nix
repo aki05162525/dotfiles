@@ -12,12 +12,15 @@
   outputs =
     { nixpkgs, home-manager, ... }:
     let
-      username = "akihiro";
-
-      # ホスト(マシン)ごとに変わる値だけをここで定義する。
+      # ホスト(マシン)ごとに変わる値(OS と username)だけを渡す。
+      # homeDirectory は OS と username から自動で組み立てる。
       # 共通設定は home-manager/home.nix 側に置く。
       mkHome =
-        { system, homeDirectory }:
+        { system, username }:
+        let
+          isDarwin = nixpkgs.lib.hasSuffix "darwin" system;
+          homeDirectory = (if isDarwin then "/Users/" else "/home/") + username;
+        in
         home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.${system};
           modules = [
@@ -32,15 +35,15 @@
     {
       homeConfigurations = {
         # WSL2 (Ubuntu) on Windows
-        "${username}@wsl" = mkHome {
+        "akihiro@wsl" = mkHome {
           system = "x86_64-linux";
-          homeDirectory = "/home/${username}";
+          username = "akihiro";
         };
 
         # macOS (Apple Silicon)
-        "${username}@mac" = mkHome {
+        "takagi@mac" = mkHome {
           system = "aarch64-darwin";
-          homeDirectory = "/Users/${username}";
+          username = "takagi";
         };
       };
     };

@@ -13,7 +13,7 @@ WSL (Ubuntu) 上の Home Manager (flake構成) で管理する個人 dotfiles。
 
 ```sh
 home-manager switch --flake .#akihiro@wsl   # WSL2 (Windows)
-home-manager switch --flake .#akihiro@mac   # macOS (Apple Silicon)
+home-manager switch --flake .#takagi@mac   # macOS (Apple Silicon)
 ```
 
 `home.nix` 配下の `.nix` ファイルを変更したらリポジトリルートで、マシンに対応する構成を指定して実行。
@@ -34,7 +34,7 @@ nix flake update home-manager
 
 `flake.lock` が更新され、Home Manager 本体のビルドレシピが最新になる。
 
-更新後は `home-manager switch --flake .#akihiro@wsl`(mac は `.#akihiro@mac`)で反映。
+更新後は `home-manager switch --flake .#akihiro@wsl`(mac は `.#takagi@mac`)で反映。
 
 ### Nix ファイルのフォーマット
 

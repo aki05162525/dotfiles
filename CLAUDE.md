@@ -82,11 +82,11 @@ dotfiles/
 
 ```sh
 home-manager switch --flake .#akihiro@wsl   # WSL2 (Windows)
-home-manager switch --flake .#akihiro@mac   # macOS (Apple Silicon)
+home-manager switch --flake .#takagi@mac   # macOS (Apple Silicon)
 ```
 
 ホスト別の構成は `flake.nix` の `homeConfigurations` で定義している。
-新しいマシンを足すときは `mkHome { system = ...; homeDirectory = ...; }` を1行追加する。
+新しいマシンを足すときは `"<username>@<host>" = mkHome { system = ...; username = ...; };` を1行追加する(homeDirectory は OS から自動導出)。
 
 **新規 `.nix` ファイルを追加した場合は必ず `git add` してから switch する**こと(Nix flake は git tracked なファイルしか見ない)。
 
