@@ -1,4 +1,5 @@
 memo.md
+.claude/settings.local.json
 *.bak
 .vscode/
 *.swp
