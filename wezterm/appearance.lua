@@ -48,7 +48,7 @@ function M.apply(config)
     saturation = 0.7,
     brightness = 0.7,
   }
-  config.use_fancy_tab_bar = true
+  config.use_fancy_tab_bar = false
   config.tab_bar_at_bottom = false
   config.window_frame = {
     font = wezterm.font("JetBrainsMono Nerd Font"),
