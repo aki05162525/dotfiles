@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   imports = [
@@ -16,16 +16,21 @@
   # 変更する場合はリリースノートを参照すること。
   home.stateVersion = "25.11";
 
-  home.packages = with pkgs; [
-    nixfmt
-    gh
-    uv
-    trufflehog
-    jq
-    ripgrep
-    supabase-cli
-    net-tools
-  ];
+  # OS 共通のパッケージ。OS 依存のものは lib.optionals で足す。
+  home.packages =
+    with pkgs;
+    [
+      nixfmt
+      gh
+      uv
+      trufflehog
+      jq
+      ripgrep
+      supabase-cli
+    ]
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      net-tools # Linux 専用(Darwin では別系統のためここに置かない)
+    ];
 
   programs.home-manager.enable = true;
 }
