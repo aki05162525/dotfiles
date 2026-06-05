@@ -11,7 +11,6 @@
       core.autocrlf = "input";
       init.defaultBranch = "main";
       credential = {
-        helper = "store";
         "https://github.com".helper = [
           ""
           "!gh auth git-credential"
