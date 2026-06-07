@@ -22,7 +22,12 @@
           homeDirectory = (if isDarwin then "/Users/" else "/home/") + username;
         in
         home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfreePredicate = pkg: builtins.elem (nixpkgs.lib.getName pkg) [
+              "1password-cli"
+            ];
+          };
           modules = [
             ./home-manager/home.nix
             {

@@ -27,6 +27,7 @@
       jq
       ripgrep
       supabase-cli
+      _1password-cli
     ]
     ++ lib.optionals pkgs.stdenv.isLinux [
       net-tools # Linux 専用(Darwin では別系統のためここに置かない)
