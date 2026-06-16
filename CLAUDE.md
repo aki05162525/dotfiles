@@ -123,11 +123,13 @@ scripts/install-wezterm-config.sh
 
 ## フォーマット
 
-`pkgs.nixfmt` (公式フォーマッタ)を導入済み。変更後はこれをかける:
+`flake.nix` の `formatter` に nixfmt(公式フォーマッタ)を定義済み。変更後はリポジトリルートで:
 
 ```sh
-nixfmt flake.nix home-manager/home.nix home-manager/*/default.nix
+nix fmt
 ```
+
+特定ファイルだけ整形したいときは `nixfmt <file>...` を直接呼んでもよい。
 
 ## ツール管理の棲み分け
 

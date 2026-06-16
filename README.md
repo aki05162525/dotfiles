@@ -39,7 +39,8 @@ nix flake update home-manager
 ### Nix ファイルのフォーマット
 
 ```sh
-nixfmt flake.nix home-manager/*.nix
+nix fmt
 ```
 
-公式フォーマッタでスタイル統一。
+`flake.nix` の `formatter` に定義した nixfmt(公式フォーマッタ)でリポジトリ全体のスタイルを統一する。
+特定ファイルだけ整形したい場合は `nixfmt <file>...` を直接呼んでもよい。

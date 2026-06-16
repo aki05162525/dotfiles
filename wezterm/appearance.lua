@@ -5,9 +5,9 @@ local M = {}
 local LEFT = wezterm.nerdfonts.pl_left_hard_divider
 local RIGHT = wezterm.nerdfonts.pl_right_hard_divider
 
-local BG       = "#282c34"
-local ACT_BG   = "#a3d4f5"
-local ACT_FG   = "#282c34"
+local BG = "#282c34"
+local ACT_BG = "#a3d4f5"
+local ACT_FG = "#282c34"
 local INACT_BG = "#3e4452"
 local INACT_FG = "#9da5b4"
 
@@ -21,11 +21,14 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
   end
 
   return {
-    { Background = { Color = BG } },      { Foreground = { Color = tab_bg } },
+    { Background = { Color = BG } },
+    { Foreground = { Color = tab_bg } },
     { Text = LEFT },
-    { Background = { Color = tab_bg } },  { Foreground = { Color = tab_fg } },
+    { Background = { Color = tab_bg } },
+    { Foreground = { Color = tab_fg } },
     { Text = " " .. (tab.tab_index + 1) .. ": " .. title .. " " },
-    { Background = { Color = BG } },      { Foreground = { Color = tab_bg } },
+    { Background = { Color = BG } },
+    { Foreground = { Color = tab_bg } },
     { Text = RIGHT },
   }
 end)
@@ -39,10 +42,10 @@ function M.apply(config)
   })
   config.font_size = 12.0
   config.colors = {
-    foreground   = "#abb2bf",
+    foreground = "#abb2bf",
     selection_bg = "#3e4452",
     selection_fg = "#abb2bf",
-    split        = "#61afef",
+    split = "#61afef",
   }
   config.inactive_pane_hsb = {
     saturation = 0.7,
@@ -53,14 +56,14 @@ function M.apply(config)
   config.window_frame = {
     font = wezterm.font("JetBrainsMono Nerd Font"),
     font_size = 12.0,
-    active_titlebar_bg   = "#282c34",
+    active_titlebar_bg = "#282c34",
     inactive_titlebar_bg = "#1e2228",
-    active_titlebar_fg   = "#dcdfe4",
+    active_titlebar_fg = "#dcdfe4",
     inactive_titlebar_fg = "#5c6370",
-    button_fg            = "#9da5b4",
-    button_bg            = "#282c34",
-    button_hover_fg      = "#dcdfe4",
-    button_hover_bg      = "#3e4452",
+    button_fg = "#9da5b4",
+    button_bg = "#282c34",
+    button_hover_fg = "#dcdfe4",
+    button_hover_bg = "#3e4452",
   }
 end
 

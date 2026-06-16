@@ -28,6 +28,12 @@
       ripgrep
       supabase-cli
       _1password-cli
+
+      # ローカル git hook(lefthook)とその検査ツール群。
+      # 詳細は repo root の lefthook.yml を参照。
+      lefthook
+      shellcheck
+      stylua
     ]
     ++ lib.optionals pkgs.stdenv.isLinux [
       net-tools # Linux 専用(Darwin では別系統のためここに置かない)

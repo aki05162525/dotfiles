@@ -1,0 +1,3 @@
+# stylua のフォーマット設定。既存の wezterm/*.lua のスタイル(2スペース字下げ)に合わせる。
+indent_type = "Spaces"
+indent_width = 2

@@ -41,10 +41,26 @@ function M.apply(config)
     { key = "o", mods = "ALT", action = act.MoveTabRelative(1) },
 
     -- Mode-style key tables, matching the old Zellij entry keys.
-    { key = "q", mods = "CTRL", action = act.ActivateKeyTable({ name = "pane", one_shot = false, timeout_milliseconds = 1500 }) },
-    { key = "t", mods = "CTRL", action = act.ActivateKeyTable({ name = "tab", one_shot = false, timeout_milliseconds = 1500 }) },
-    { key = "n", mods = "CTRL", action = act.ActivateKeyTable({ name = "resize", one_shot = false, timeout_milliseconds = 1500 }) },
-    { key = "h", mods = "CTRL", action = act.ActivateKeyTable({ name = "move", one_shot = false, timeout_milliseconds = 1500 }) },
+    {
+      key = "q",
+      mods = "CTRL",
+      action = act.ActivateKeyTable({ name = "pane", one_shot = false, timeout_milliseconds = 1500 }),
+    },
+    {
+      key = "t",
+      mods = "CTRL",
+      action = act.ActivateKeyTable({ name = "tab", one_shot = false, timeout_milliseconds = 1500 }),
+    },
+    {
+      key = "n",
+      mods = "CTRL",
+      action = act.ActivateKeyTable({ name = "resize", one_shot = false, timeout_milliseconds = 1500 }),
+    },
+    {
+      key = "h",
+      mods = "CTRL",
+      action = act.ActivateKeyTable({ name = "move", one_shot = false, timeout_milliseconds = 1500 }),
+    },
     { key = "s", mods = "CTRL", action = act.ActivateCopyMode },
   }
 

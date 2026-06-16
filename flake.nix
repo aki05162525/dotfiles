@@ -53,5 +53,12 @@
           username = "takagi";
         };
       };
+
+      # `nix fmt` で使うフォーマッタ。各マシンの system 分を定義する。
+      # nixfmt は公式フォーマッタ(旧 nixfmt-rfc-style と同一)。
+      formatter = {
+        x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
+        aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
+      };
     };
 }
