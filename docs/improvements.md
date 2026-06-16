@@ -17,6 +17,8 @@
 
 ## 優先度: 高
 
+> 高優先度の #1〜#3 は 2026-06-16 に対応済み(コミット `6608c07`)。各項目末尾の「対応済み」を参照。
+
 ### 1. `nix fmt` を使えるようにする
 
 対象: `flake.nix`, `README.md`, `CLAUDE.md`
@@ -32,6 +34,8 @@ formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-rfc-styl
 ```
 
 あわせて README/CLAUDE のフォーマット手順を `nix fmt` に寄せる。
+
+**対応済み (2026-06-16):** `flake.nix` に `formatter.x86_64-linux` / `formatter.aarch64-darwin` を追加し `nix fmt` を有効化した。`nixfmt-rfc-style` は「`pkgs.nixfmt` と同一なので後者を使え」という警告が出たため、`home.packages` と揃えて `nixfmt` を指定した。
 
 ### 2. README のフォーマットコマンドがサブディレクトリを取りこぼす
 
@@ -52,6 +56,8 @@ nixfmt flake.nix home-manager/home.nix home-manager/*/default.nix
 ```
 
 ただし #1 を入れるなら、最終的には `nix fmt` だけを案内するのがよい。
+
+**対応済み (2026-06-16):** #1 とあわせて README / CLAUDE の手順を `nix fmt` に統一した(特定ファイルのみ整形したい場合の `nixfmt <file>...` も併記)。
 
 ### 3. lefthook でローカルの検査を回す
 
@@ -96,6 +102,14 @@ pre-push:
 必要になったときだけ手動で `trufflehog filesystem --no-update .` を実行する。
 
 `install-wezterm-config.sh` は WSL/macOS 分岐や Windows パス変換を担い壊れると初回セットアップで詰まるため、shellcheck の対象に含める価値が高い。WezTerm Lua も分割が進んでいるので stylua でフォーマットを揃える。
+
+**対応済み (2026-06-16):**
+
+- `home.packages` に `lefthook` / `shellcheck` / `stylua` を追加。
+- repo root に `lefthook.yml`(pre-commit: nixfmt/shellcheck/stylua、pre-push: `nix flake check`)を作成。
+- stylua のデフォルトはタブ字下げで既存 Lua(2スペース)と衝突するため、`stylua.toml`(Spaces / width 2)を追加し、追跡対象の Lua を一度フォーマットしてベースラインを揃えた。
+- `docs/setup.md` のポストセットアップに `lefthook install`(初回のみ)を追記。
+- `home-manager switch` と `lefthook install` を実行済み。コミット `6608c07` の pre-commit / pre-push フックが実際に発火することも確認した。
 
 ## 優先度: 中
 
@@ -219,7 +233,11 @@ Nix 管理したいなら `home.packages` への追加とセットにする。
 
 ## 着手順の提案
 
-1. `formatter` を flake に追加して `nix fmt` を有効化する(#1)。
-2. README/CLAUDE の古い手順と実装差分を直す(#2, #8)。
-3. lefthook を導入し、nixfmt / shellcheck / stylua / flake check をローカル hook に集約する(#3)。
-4. Git、環境変数、CLI 追加などの日常設定を整える(#5, #6, #7)。
+1. ~~`formatter` を flake に追加して `nix fmt` を有効化する(#1)。~~ ✅ 2026-06-16 対応済み
+2. README/CLAUDE の古い手順と実装差分を直す(#2 ✅ / #8 は未対応)。
+3. ~~lefthook を導入し、nixfmt / shellcheck / stylua / flake check をローカル hook に集約する(#3)。~~ ✅ 2026-06-16 対応済み
+4. Git、環境変数、CLI 追加などの日常設定を整える(#5, #6, #7)。← 次はここから
+
+## 対応履歴
+
+- 2026-06-16: 高優先度 #1〜#3 を対応(コミット `6608c07`)。`nix fmt` 有効化、ドキュメントの手順統一、lefthook + shellcheck/stylua のローカル hook 集約。
