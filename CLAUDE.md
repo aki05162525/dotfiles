@@ -11,21 +11,23 @@ dotfiles/
 ├─ README.md
 ├─ CLAUDE.md
 ├─ memo.md                # 作業中のTODOメモ
+├─ lefthook.yml           # ローカル git hook(pre-commit / pre-push)
+├─ stylua.toml            # Lua フォーマッタ設定(2スペース字下げ)
 ├─ docs/
 │  ├─ setup.md            # 別マシンでのセットアップ手順
 │  └─ tool-management.md  # Nix / mise / corepack 等のレイヤー構造
-└─ home-manager/
-   ├─ home.nix            # エントリ。ツール別モジュールを imports
-   ├─ direnv/default.nix
-   ├─ fzf/default.nix
-   ├─ git/default.nix
-   ├─ mise/default.nix
-   ├─ zsh/default.nix
-   ├─ starship/
-   │  ├─ default.nix
-   │  └─ starship.toml
-   └─ ...
-├─ wezterm/               # Windows側へコピーして使う WezTerm 設定
+├─ home-manager/
+│  ├─ home.nix            # エントリ。ツール別モジュールを imports
+│  ├─ direnv/default.nix
+│  ├─ fzf/default.nix
+│  ├─ git/default.nix
+│  ├─ mise/default.nix
+│  ├─ zsh/default.nix
+│  ├─ starship/
+│  │  ├─ default.nix
+│  │  └─ starship.toml
+│  └─ ...
+├─ wezterm/               # 各 OS から直接参照する WezTerm 設定(コピーはしない)
 │  ├─ wezterm.lua
 │  ├─ appearance.lua
 │  ├─ keys.lua
@@ -67,7 +69,10 @@ dotfiles/
   programs.mise = {
     enable = true;
     enableZshIntegration = true;
-    globalConfig.tools.node = "22";
+    globalConfig.tools = {
+      node = "24";
+      go = "1.26";
+    };
   };
 }
 ```

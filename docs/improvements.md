@@ -193,6 +193,8 @@ Nix 管理したいなら `home.packages` への追加とセットにする。
 
 対応案: 自動化より先に、今の実装に合わせて記述だけ直す。
 
+**対応済み (2026-06-16):** 上記3点を修正(mise の例を `node = "24"` / `go = "1.26"` に、ディレクトリ構成図のインデントを修正し `wezterm/` `scripts/` を `home-manager/` と同階層に、WezTerm の説明を「各 OS から直接参照(コピーはしない)」に)。あわせて構成図に `lefthook.yml` / `stylua.toml` を追記した。
+
 ### 9. `.gitignore` の意図を整理する
 
 対象: `.gitignore`, `home-manager/git/default.nix`
@@ -234,10 +236,11 @@ Nix 管理したいなら `home.packages` への追加とセットにする。
 ## 着手順の提案
 
 1. ~~`formatter` を flake に追加して `nix fmt` を有効化する(#1)。~~ ✅ 2026-06-16 対応済み
-2. README/CLAUDE の古い手順と実装差分を直す(#2 ✅ / #8 は未対応)。
+2. README/CLAUDE の古い手順と実装差分を直す(#2 ✅ / #8 ✅、いずれも 2026-06-16 対応済み)。
 3. ~~lefthook を導入し、nixfmt / shellcheck / stylua / flake check をローカル hook に集約する(#3)。~~ ✅ 2026-06-16 対応済み
 4. Git、環境変数、CLI 追加などの日常設定を整える(#5, #6, #7)。← 次はここから
 
 ## 対応履歴
 
 - 2026-06-16: 高優先度 #1〜#3 を対応(コミット `6608c07`)。`nix fmt` 有効化、ドキュメントの手順統一、lefthook + shellcheck/stylua のローカル hook 集約。
+- 2026-06-16: #8(CLAUDE.md のドリフト)を対応。mise バージョン例・ディレクトリ構成図・WezTerm の運用説明を現状に合わせ、構成図に `lefthook.yml` / `stylua.toml` を追記。
