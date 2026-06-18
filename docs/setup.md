@@ -159,6 +159,34 @@ lefthook install
 - pre-commit: nixfmt / shellcheck / stylua(差分ファイル対象の速い検査)
 - pre-push: `nix flake check`(重いので push 時だけ)
 
+### 1Password SSH Agent の設定（WSL2のみ）
+
+1. 1Password for Windows をインストールしてサインイン
+2. Settings → Developer → **SSH Agent を有効化**
+3. 既存または新規の SSH キーを 1Password にインポート
+4. WSL から動作確認:
+
+```sh
+ssh-add.exe -l   # 1Password に登録した鍵が表示されれば OK
+ssh.exe -T git@github.com   # GitHub への接続テスト
+```
+
+### Git commit signing の設定（WSL2のみ）
+
+1Password アプリで SSH キーを開き、`...` → **Configure Commit Signing** → **Configure for Windows Subsystem for Linux (WSL)** にチェック → **Copy Snippet**
+
+コピーしたスニペットのうち PC 固有の値（`user.signingkey` と `gpg.ssh.program`）を `~/.gitconfig.local` に書く（git 管理しない）:
+
+```ini
+[user]
+  signingkey = ssh-ed25519 <公開鍵>
+
+[gpg "ssh"]
+  program = "/mnt/c/Users/<Windowsユーザー名>/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe"
+```
+
+`gpg.format` と `commit.gpgsign` は home-manager 側で設定済み。
+
 ### gh の認証
 
 ```sh
