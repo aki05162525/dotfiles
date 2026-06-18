@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 
 {
   imports = [
@@ -40,4 +45,21 @@
     ];
 
   programs.home-manager.enable = true;
+
+  # macOS: ~/.config/wezterm → ~/dotfiles/wezterm をディレクトリごと symlink する。
+  # WSL2 は install-wezterm-config.sh で Windows 側 ~/.wezterm.lua を生成するため対象外。
+  home.file.".config/wezterm" = lib.mkIf pkgs.stdenv.isDarwin {
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/wezterm";
+  };
+
+  # dotfiles リポジトリの lefthook git hook を自動注入する。
+  # switch のたびに実行されるが lefthook install は冪等なので問題ない。
+  home.activation.lefthookInstall = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    export PATH="${pkgs.git}/bin:$PATH"
+    dotfiles_dir="${config.home.homeDirectory}/dotfiles"
+    if [ -d "$dotfiles_dir/.git" ]; then
+      cd "$dotfiles_dir"
+      run ${pkgs.lefthook}/bin/lefthook install
+    fi
+  '';
 }

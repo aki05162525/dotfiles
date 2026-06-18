@@ -1,196 +1,141 @@
 # 新しいマシンでのセットアップ手順
 
-Home Manager (flake構成) を前提とした手順。WSL2 (Windows) と macOS (Apple Silicon) の
-両方に対応しており、`flake.nix` の `homeConfigurations` でホスト別の構成を切り替える。
+Home Manager (flake構成) を前提にする。WSL2 (Ubuntu) と macOS (Apple Silicon) は
+`flake.nix` の `homeConfigurations` に定義済み。
 
-- WSL2: `home-manager switch --flake .#akihiro@wsl`
-- macOS: `home-manager switch --flake .#takagi@mac`
+使う構成名は WSL2 が `akihiro@wsl`、macOS が `takagi@mac`。
 
 ## 前提
 
 - WSL2 (Ubuntu) または macOS (Apple Silicon)
-- WSL2 の場合は Windows 側に WezTerm をインストール可能
 - `sudo` 権限あり(WSL2 の場合)
 - インターネット接続あり
 
-## 1. Nix のインストール
+## Nix が管理するもの
 
-Determinate Systems の installer を使う(flake が標準で有効化される):
+Home Manager 適用後、以下は Nix 管理になる。個別インストールは不要。
 
-> `curl` は Ubuntu WSL に標準で含まれている。入っていなければ `sudo apt install -y curl`。
+- CLI: `git`, `gh`, `jq`, `ripgrep`, `uv`, `trufflehog`
+- shell: `zsh`, `starship`, `fzf`, `direnv`
+- 開発補助: `mise`, `lefthook`, `shellcheck`, `stylua`, `nixfmt`
+- Git 設定: user 情報、credential helper、commit signing の共通設定
+
+手作業が必要なのは、Nix のインストール、外部 GUI アプリ、認証、PC 固有の秘密情報だけ。
+
+## 1. Nix をインストール
+
+Determinate Systems の installer を使う。flake は標準で有効化される。
 
 ```sh
 curl -fsSL https://install.determinate.systems/nix | sh -s -- install
-```
-
-インストール後、シェルを再起動:
-
-```sh
 exec $SHELL -l
+nix --version
 ```
 
-確認:
+`curl` がない Ubuntu WSL では先に入れる。
 
 ```sh
-nix --version
+sudo apt install -y curl
 ```
 
 ## 2. dotfiles をクローン
 
 ```sh
 nix run nixpkgs#git -- clone https://github.com/aki05162525/dotfiles.git ~/dotfiles
+```
+
+## 3. Home Manager を初回適用
+
+```sh
 cd ~/dotfiles
-```
 
-## 3. マシン固有の値を確認・修正
-
-WSL2 / macOS (Apple Silicon) は `flake.nix` の `homeConfigurations` に定義済みなので、
-通常は修正不要。新しいホストを足す場合だけ `flake.nix` を編集する。`mkHome` には
-`system` と `username` を渡すだけでよく、homeDirectory は OS から自動で組み立てられる:
-
-```nix
-homeConfigurations = {
-  "akihiro@wsl" = mkHome { system = "x86_64-linux";   username = "akihiro"; };
-  "takagi@mac"  = mkHome { system = "aarch64-darwin"; username = "takagi"; };
-  # 例: Intel Mac を足すなら
-  # "takagi@mac-intel" = mkHome { system = "x86_64-darwin"; username = "takagi"; };
-};
-```
-
-構成名は `<username>@<host>` の形にしておくと、どのマシン用か分かりやすい。
-
-`home-manager/git/default.nix` で git の user 情報も必要なら修正:
-
-```nix
-user = {
-  name = "aki05162525";
-  email = "akihiro05162525@gmail.com";
-};
-```
-
-## 4. Home Manager を初回適用
-
-リポジトリルートで、マシンに対応する構成を指定する(以下は WSL2 の例。mac は `.#takagi@mac`):
-
-```sh
+# WSL2
 nix run home-manager/master -- switch --flake .#akihiro@wsl
+
+# macOS
+nix run home-manager/master -- switch --flake .#takagi@mac
 ```
 
-2回目以降は `home-manager` コマンドが PATH に入るので:
+2回目以降は `home-manager` コマンドが PATH に入る。
 
 ```sh
-home-manager switch --flake .#akihiro@wsl
-```
-
-シェルを再起動:
-
-```sh
+home-manager switch --flake .#akihiro@wsl   # mac は .#takagi@mac
 exec zsh
 ```
 
-## 5. ログインシェルを zsh に変更
+新しいホストを足す場合だけ `flake.nix` の `homeConfigurations` に追加する。
 
-```sh
-chsh -s $(which zsh)
+```nix
+homeConfigurations = {
+  "akihiro@wsl" = mkHome { system = "x86_64-linux"; username = "akihiro"; };
+  "takagi@mac" = mkHome { system = "aarch64-darwin"; username = "takagi"; };
+};
 ```
 
-WSL を再起動して反映。
+## 4. ログインシェルを zsh に変更
 
-## 6. ポストセットアップ
+```sh
+chsh -s "$(which zsh)"
+```
 
-### WezTerm の導入と設定反映
+WSL は再起動して反映する。
 
-**WSL2 (Windows) の場合:** Windows 側で WezTerm をインストールし、初回だけスクリプトを実行する。
-このスクリプトは Windows 側 `~/.wezterm.lua` を生成し、`\\wsl.localhost` 経由で WSL 側の
-dotfiles の `wezterm/` を直接参照させる(コピーはしない)。以降はリポジトリを編集して WezTerm を
-リロードすれば即反映される(再実行不要)。
+## 5. 初回だけ必要な設定
+
+### WezTerm
+
+WezTerm 本体は OS 側に入れる。設定は `wezterm/` を直接参照するため、編集後は WezTerm をリロード
+(Ctrl+Shift+R)するだけで反映される。
 
 ```powershell
+# WSL2: Windows 側で実行
 winget install wez.wezterm
 ```
 
 ```sh
-cd ~/dotfiles
-scripts/install-wezterm-config.sh
-```
-
-**macOS の場合:** WezTerm をインストールし、同じスクリプトを実行する。mac では
-`~/.config/wezterm` へ symlink を張るので、以降はリポジトリを編集すれば即反映される
-(再実行不要)。
-
-```sh
+# macOS
 brew install --cask wezterm
+```
+
+**macOS** は `home-manager switch` で `~/.config/wezterm` に symlink が作られるので追加作業は不要。
+
+**WSL2** は初回だけスクリプトを実行して Windows 側 `~/.wezterm.lua` を生成する。
+
+```sh
 cd ~/dotfiles
 scripts/install-wezterm-config.sh
 ```
 
-WezTerm を開き直して、WSL のホームに入ることを確認する:
+PC ごとの workspace 一覧は git 管理しない `wezterm/workspace.local.lua` に書く。
 
-```sh
-pwd
-```
-
-期待値:
-
-```text
-/home/<WSLユーザー>
-```
-
-WSL ディストリビューション名が `Ubuntu` ではない場合は、Windows 側で確認し、必要に応じて `wezterm/platform.lua` の domain 名を合わせる:
+WSL ディストリビューション名が `Ubuntu` ではない場合は、Windows 側で確認して
+`wezterm/platform.lua` の domain 名を合わせる。
 
 ```powershell
 wsl -l -v
 ```
 
-WezTerm 設定を変更したときは、WSL2 / mac とも **WezTerm をリロード(Ctrl+Shift+R)するだけ**で反映される(WSL2=UNC 直接参照 / mac=symlink のため、いずれもスクリプト再実行は不要)。`scripts/install-wezterm-config.sh` を再実行するのは、新しいマシンの初回か、リポジトリの置き場所(パス)を変えたときだけ。
+### 1Password SSH Agent
 
-PC ごとの workspace 一覧は `wezterm/workspace.local.lua` に書く。このファイルは git 管理しない。
-
-### lefthook の git hook を注入
-
-`home.packages` で導入した `lefthook` を、このリポジトリの `.git/hooks` に初回だけ注入する
-(以降は `lefthook.yml` を編集するだけで反映される)。`lefthook.yml` の検査が走るようになる:
+1Password アプリは OS 側に入れて、Settings → Developer → SSH Agent を有効化する。
+SSH キーを 1Password に入れたら接続確認する。
 
 ```sh
-cd ~/dotfiles
-lefthook install
-```
+# WSL2
+ssh-add.exe -l
+ssh.exe -T git@github.com
 
-- pre-commit: nixfmt / shellcheck / stylua(差分ファイル対象の速い検査)
-- pre-push: `nix flake check`(重いので push 時だけ)
-
-### 1Password SSH Agent の設定
-
-**WSL2 の場合:**
-
-1. 1Password for Windows をインストールしてサインイン
-2. Settings → Developer → **SSH Agent を有効化**
-3. 既存または新規の SSH キーを 1Password にインポート
-4. WSL から動作確認:
-
-```sh
-ssh-add.exe -l   # 1Password に登録した鍵が表示されれば OK
-ssh.exe -T git@github.com   # GitHub への接続テスト
-```
-
-**macOS の場合:**
-
-1. 1Password for Mac をインストールしてサインイン
-2. Settings → Developer → **SSH Agent を有効化**
-3. 既存または新規の SSH キーを 1Password にインポート
-4. 動作確認（`~/.ssh/config` の `IdentityAgent` は home-manager が設定済み）:
-
-```sh
+# macOS
 ssh -T git@github.com
 ```
 
-### Git commit signing の設定
+### Git commit signing
 
-**WSL2 の場合:**
+`gpg.format` と `commit.gpgsign` は Home Manager 設定済み。署名鍵などの PC 固有値だけ
+`~/.gitconfig.local` に置く。
 
-1Password アプリで SSH キーを開き、`...` → **Configure Commit Signing** → **Configure for Windows Subsystem for Linux (WSL)** にチェック → **Copy Snippet**
-
-コピーしたスニペットのうち PC 固有の値（`user.signingkey` と `gpg.ssh.program`）を `~/.gitconfig.local` に書く（git 管理しない）:
+WSL2 は 1Password アプリで SSH キーを開き、`...` → Configure Commit Signing →
+Configure for Windows Subsystem for Linux (WSL) → Copy Snippet で取得した値を書く。
 
 ```ini
 [user]
@@ -200,92 +145,123 @@ ssh -T git@github.com
   program = "/mnt/c/Users/<Windowsユーザー名>/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe"
 ```
 
-**macOS の場合:**
-
-`gpg.ssh.program`（1Password のパス）は home-manager が設定済み。マシン固有の署名鍵だけ `~/.gitconfig.local` に追記する:
+macOS は 1Password の公開鍵を確認して、署名鍵だけを書く。`gpg.ssh.program` は Home Manager
+設定済み。
 
 ```sh
-# 1Password に登録されている公開鍵を確認
 SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ssh-add -L
 ```
-
-出力された公開鍵を `~/.gitconfig.local` に書く（git 管理しない）:
 
 ```ini
 [user]
   signingkey = ssh-ed25519 <公開鍵>
 ```
 
-`gpg.format` と `commit.gpgsign` は home-manager 側で設定済み（WSL2・macOS 共通）。
-
-### gh の認証
+### gh
 
 ```sh
 gh auth login
 ```
 
-GitHub.com → HTTPS → Y(git の credential helper として gh を使う) → ブラウザ認証 の流れ。
+GitHub.com → HTTPS → Y(git の credential helper として gh を使う) → ブラウザ認証。
 
-### mise でランタイムをインストール
+### mise / corepack
 
-`home-manager/mise/default.nix` の `globalConfig.tools` に書いてあるバージョン(Node, Go等)を実際にダウンロード:
+`mise` 本体と設定は Nix 管理。Node / Go などの実体は `mise install` で入れる。
+`pnpm` は Nix では固定せず、Node 同梱の corepack に任せる。
 
 ```sh
 mise install
-mise current   # 確認
-```
+mise current
 
-### corepack で pnpm を有効化
-
-```sh
 corepack enable pnpm
 pnpm --version
 ```
 
+詳しい役割分担は [ツール管理の役割分担](./tool-management.md) を参照。
 
-## 7. 動作確認
+## 動作確認
+
+### Nix 管理のツール
 
 ```sh
-# 主要ツールが Nix 管理になっているか
-which mise node git gh direnv starship zsh uv trufflehog jq
-
-# mise のランタイム
-mise current
-
-# Home Manager 自身
-home-manager --version
+command -v git gh direnv starship zsh uv trufflehog jq
 ```
+
+全て `~/.nix-profile/bin/` 以下のパスが返れば OK。
+
+### ログインシェル
+
+```sh
+echo $SHELL
+```
+
+`~/.nix-profile/bin/zsh` が返れば OK。`/bin/bash` などが返る場合は `chsh` が未反映なのでシェルを再起動する。
+
+### mise のランタイム
+
+```sh
+mise current
+```
+
+`home-manager/mise/default.nix` に書いたバージョンが表示されれば OK。表示されない場合は `mise install` を実行する。
+
+### GitHub SSH 接続
+
+```sh
+# WSL2
+ssh.exe -T git@github.com
+
+# macOS
+ssh -T git@github.com
+```
+
+`Hi <username>! You've successfully authenticated` が返れば OK。失敗する場合は 1Password SSH Agent の設定を確認する。
+
+### gh 認証
+
+```sh
+gh auth status
+```
+
+`Logged in to github.com` が返れば OK。
+
+### Git commit signing
+
+```sh
+git config user.signingkey
+```
+
+1Password に登録した公開鍵(`ssh-ed25519 ...`)が返れば OK。空の場合は `~/.gitconfig.local` の設定を確認する。
+
+### lefthook の git hook
+
+```sh
+ls .git/hooks/pre-commit
+```
+
+ファイルが存在すれば OK。存在しない場合は `home-manager switch` を再実行する。
+
+### WezTerm 設定(macOS のみ)
+
+```sh
+ls -la ~/.config/wezterm
+```
+
+`~/dotfiles/wezterm` への symlink になっていれば OK。
 
 ## トラブルシューティング
 
 ### `Existing file '~/.config/...' would be clobbered`
 
-Home Manager が管理したいファイルが既にプレーンファイルとして存在しているとき。内容を確認し、不要なら削除して再実行:
+Home Manager が管理したいファイルが既に存在している。内容を確認し、不要なら削除して再実行する。
 
 ```sh
 rm ~/.config/<該当ファイル>
 home-manager switch --flake .#akihiro@wsl   # mac は .#takagi@mac
 ```
 
-### `error: Path '...' in the repository ... is not tracked by Git`
-
-flake は git でトラッキングされたファイルしか見ない。新規追加した `.nix` ファイルを git に追加:
-
-```sh
-git add <file>
-home-manager switch --flake .#akihiro@wsl   # mac は .#takagi@mac
-```
-
-### WezTerm のペイン分割時に現在ディレクトリを引き継がない
-
-`home-manager/zsh/default.nix` で WezTerm に現在ディレクトリを通知する OSC 7 を出している。Home Manager を再反映して、WezTerm を開き直す:
-
-```sh
-home-manager switch --flake .#akihiro@wsl   # mac は .#takagi@mac
-```
-
-
 ## 次のステップ
 
-- [ツール管理の役割分担](./tool-management.md) を一読しておくと運用イメージが掴める
-- 新しいツールを追加するときは `home-manager/<tool>/default.nix` を作って `home.nix` の `imports` に追加 → `git add` → `home-manager switch`
+新しい CLI を追加するときは `home-manager/<tool>/default.nix` を作って `home.nix` の `imports`
+に追加し、`git add` してから `home-manager switch` する。
