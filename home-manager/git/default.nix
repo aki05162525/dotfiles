@@ -13,6 +13,7 @@
         email = "akihiro05162525@gmail.com";
       };
       core.autocrlf = "input";
+      core.sshCommand = "ssh.exe";
       init.defaultBranch = "main";
       credential = {
         "https://github.com".helper = [
