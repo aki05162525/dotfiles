@@ -159,7 +159,9 @@ lefthook install
 - pre-commit: nixfmt / shellcheck / stylua(差分ファイル対象の速い検査)
 - pre-push: `nix flake check`(重いので push 時だけ)
 
-### 1Password SSH Agent の設定（WSL2のみ）
+### 1Password SSH Agent の設定
+
+**WSL2 の場合:**
 
 1. 1Password for Windows をインストールしてサインイン
 2. Settings → Developer → **SSH Agent を有効化**
@@ -171,7 +173,20 @@ ssh-add.exe -l   # 1Password に登録した鍵が表示されれば OK
 ssh.exe -T git@github.com   # GitHub への接続テスト
 ```
 
-### Git commit signing の設定（WSL2のみ）
+**macOS の場合:**
+
+1. 1Password for Mac をインストールしてサインイン
+2. Settings → Developer → **SSH Agent を有効化**
+3. 既存または新規の SSH キーを 1Password にインポート
+4. 動作確認（`~/.ssh/config` の `IdentityAgent` は home-manager が設定済み）:
+
+```sh
+ssh -T git@github.com
+```
+
+### Git commit signing の設定
+
+**WSL2 の場合:**
 
 1Password アプリで SSH キーを開き、`...` → **Configure Commit Signing** → **Configure for Windows Subsystem for Linux (WSL)** にチェック → **Copy Snippet**
 
@@ -185,7 +200,23 @@ ssh.exe -T git@github.com   # GitHub への接続テスト
   program = "/mnt/c/Users/<Windowsユーザー名>/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe"
 ```
 
-`gpg.format` と `commit.gpgsign` は home-manager 側で設定済み。
+**macOS の場合:**
+
+`gpg.ssh.program`（1Password のパス）は home-manager が設定済み。マシン固有の署名鍵だけ `~/.gitconfig.local` に追記する:
+
+```sh
+# 1Password に登録されている公開鍵を確認
+SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock ssh-add -L
+```
+
+出力された公開鍵を `~/.gitconfig.local` に書く（git 管理しない）:
+
+```ini
+[user]
+  signingkey = ssh-ed25519 <公開鍵>
+```
+
+`gpg.format` と `commit.gpgsign` は home-manager 側で設定済み（WSL2・macOS 共通）。
 
 ### gh の認証
 
