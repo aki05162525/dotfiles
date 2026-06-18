@@ -7,6 +7,7 @@
       "**/.claude/settings.local.json"
       ".DS_Store"
     ];
+    includes = [{ path = "~/.gitconfig.local"; }];
     settings = {
       user = {
         name = "aki05162525";
@@ -15,6 +16,8 @@
       core.autocrlf = "input";
       core.sshCommand = "ssh.exe";
       init.defaultBranch = "main";
+      gpg = { format = "ssh"; };
+      commit = { gpgsign = true; };
       credential = {
         "https://github.com".helper = [
           ""
