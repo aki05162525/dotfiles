@@ -23,6 +23,8 @@
       commit = {
         gpgsign = true;
       };
+      push.autoSetupRemote = true;
+      fetch.prune = true;
       credential = {
         "https://github.com".helper = [
           ""
