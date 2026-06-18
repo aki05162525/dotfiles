@@ -1,6 +1,6 @@
 # dotfiles
 
-WSL (Ubuntu) 上の Home Manager (flake構成) で管理する個人 dotfiles。
+WSL2 (Ubuntu) と macOS (Apple Silicon) 両対応の Home Manager (flake構成) で管理する個人 dotfiles。
 
 ## ディレクトリ構成
 
@@ -122,7 +122,7 @@ scripts/install-wezterm-config.sh
 ```
 
 - WSL2 では Windows 側 `~/.wezterm.lua` を生成し、`WEZTERM_DOTFILES_CONFIG_DIR` にこのリポジトリの `wezterm/` を指す `\\wsl.localhost` UNC パスを書き込む。
-- macOS では `~/.config/wezterm` へ symlink を張る。
+- macOS は `home-manager switch` で `~/.config/wezterm → ~/dotfiles/wezterm` の symlink が自動作成される(スクリプト不要)。
 
 日々の編集ではスクリプトを再実行する必要はなく、WezTerm をリロードすれば反映される。
 
