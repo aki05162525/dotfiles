@@ -27,7 +27,7 @@ dotfiles/
 │  │  ├─ default.nix
 │  │  └─ starship.toml
 │  └─ ...
-├─ wezterm/               # 各 OS から直接参照する WezTerm 設定(コピーはしない)
+├─ wezterm/               # WezTerm 設定の実体(switch で各 OS へ反映)
 │  ├─ wezterm.lua
 │  ├─ appearance.lua
 │  ├─ keys.lua
@@ -35,8 +35,7 @@ dotfiles/
 │  ├─ workspace.lua
 │  ├─ workspace.local.lua.example
 │  └─ loader.lua
-└─ scripts/
-   └─ install-wezterm-config.sh
+└─ (scripts なし: WezTerm の Windows 側反映は home-manager switch に統合済み)
 ```
 
 ## 設定ファイル分割の方針
@@ -97,12 +96,12 @@ home-manager switch --flake .#takagi@mac   # macOS (Apple Silicon)
 
 ## WezTerm 設定の更新手順
 
-WezTerm は Windows 側アプリだが、設定実体はこのリポジトリの `wezterm/` で管理し、各 OS から**直接参照**させる(コピー運用はやめた)。
+WezTerm は Windows 側アプリだが、設定実体はこのリポジトリの `wezterm/` で管理し、**`home-manager switch` で各 OS へ反映**する(専用スクリプトは廃止)。リポジトリが常に source of truth で、Windows 側に古いコピーが置き去りになるドリフトを防ぐ。
 
-- **WSL2 (Windows)**: Windows 側 `~/.wezterm.lua` から `\\wsl.localhost\<distro>\…\dotfiles\wezterm` を直接読む。`install-wezterm-config.sh` は **初回1回だけ** 実行すればよい。
-- **macOS**: `~/.config/wezterm` にリポジトリの `*.lua` を symlink する(`loader.lua` は Windows 専用なので除外)。
+- **WSL2 (Windows)**: `home.nix` の `weztermWslConfig` activation が、`switch` のたびに `wezterm/*.lua` を Windows 側 `%USERPROFILE%\.config\wezterm` へミラーコピーし、エントリ `~/.wezterm.lua` をそこへ向ける(`\\wsl.localhost` 越しの直接参照は遅い・たまに不安定なためコピー方式)。
+- **macOS**: `~/.config/wezterm` をリポジトリの `wezterm/` へ symlink する(`home.nix` の `home.file`。symlink なので常に同期)。
 
-どちらも編集後はスクリプト不要で、**WezTerm をリロード(Ctrl+Shift+R)するだけ**で反映される。
+どちらも `switch` 後に追加作業は不要で、`wezterm/*.lua` を編集したら **WSL は `home-manager switch` でコピーを更新 → WezTerm をリロード(Ctrl+Shift+R)、macOS はリロードのみ**で反映される。
 
 `wezterm/` の役割:
 
@@ -113,18 +112,16 @@ WezTerm は Windows 側アプリだが、設定実体はこのリポジトリの
 - `workspace.lua`: workspace 切り替えの共通ロジック
 - `workspace.local.lua`: PC ごとの workspace 一覧。git 管理しない
 - `workspace.local.lua.example`: `workspace.local.lua` のサンプル
-- `loader.lua`: Windows 側の `~/.wezterm.lua` から repo 管理の設定を読み込むためのローダー
+- `loader.lua`: Windows 側 `~/.wezterm.lua` の本体。WSL2 で activation が先頭に `WEZTERM_DOTFILES_CONFIG_DIR`(コピー先 `%USERPROFILE%/.config/wezterm`)を書き足して生成する
 
-新しいマシンのセットアップ時、またはリポジトリの置き場所(パス)を変えたときだけ、リポジトリルートで実行する:
+WSL2 の `weztermWslConfig` activation の挙動と安全策:
 
-```sh
-scripts/install-wezterm-config.sh
-```
+- WSL ランタイム判定(`/proc/version`)でガードし、非 WSL の Linux と macOS では何もしない。
+- `wezterm/*.lua`(`loader.lua` と `*.example` は除く)を `%USERPROFILE%\.config\wezterm` へコピーし、内容が同じファイルは書き込まない(`cmp` で冪等)。
+- `~/.wezterm.lua` は dotfiles 生成物(`WEZTERM_DOTFILES_CONFIG_DIR` 署名を含むファイル)のときだけ更新し、手書きの無関係なファイルは上書きしない。
+- activation は最小 PATH で走るため、`wslpath` / `cmd.exe` は絶対パスで呼ぶ。
 
-- WSL2 では Windows 側 `~/.wezterm.lua` を生成し、`WEZTERM_DOTFILES_CONFIG_DIR` にこのリポジトリの `wezterm/` を指す `\\wsl.localhost` UNC パスを書き込む。
-- macOS は `home-manager switch` で `~/.config/wezterm → ~/dotfiles/wezterm` の symlink が自動作成される(スクリプト不要)。
-
-日々の編集ではスクリプトを再実行する必要はなく、WezTerm をリロードすれば反映される。
+`workspace.local.lua`(PC ごとの workspace、git 管理外)も `wezterm/` に置けばコピー対象になる。`switch` のたびにコピーが最新化されるので、Windows 側を直接いじる必要はない。
 
 ## フォーマット
 
@@ -141,7 +138,7 @@ nix fmt
 詳細は [docs/tool-management.md](docs/tool-management.md) 参照。要約:
 
 - **Nix (Home Manager)**: グローバルCLI(git, gh, mise, direnv, starship, jq, ripgrep など)
-- **WezTerm**: Windows側ターミナルアプリ。設定実体は `wezterm/` で管理し、`scripts/install-wezterm-config.sh` で Windows 側へ反映する
+- **WezTerm**: Windows側ターミナルアプリ。設定実体は `wezterm/` で管理し、`home-manager switch` の activation で各 OS へ反映する(WSL2 は Windows 側へコピー、macOS は symlink)
 - **mise**: Node, Go など言語ランタイムのバージョン管理(プロジェクト別の `.tool-versions` 対応)
 - **corepack** (Node 同梱): pnpm, yarn のバージョン管理(`package.json` の `packageManager` フィールド)
 - **direnv**: プロジェクト別の環境変数(`.envrc`)

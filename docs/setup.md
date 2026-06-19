@@ -104,14 +104,9 @@ brew install --cask wezterm
 
 **macOS** は `home-manager switch` で `~/.config/wezterm` に symlink が作られるので追加作業は不要。
 
-**WSL2** は初回だけスクリプトを実行して Windows 側 `~/.wezterm.lua` を生成する。
+**WSL2** も `home-manager switch` の activation(`weztermWslConfig`)が、`wezterm/*.lua` を Windows 側 `%USERPROFILE%\.config\wezterm` へコピーし、エントリ `~/.wezterm.lua` を生成する。WezTerm 本体を入れたら、もう一度 `home-manager switch` を実行すれば反映される(手動スクリプトは不要)。以降 `wezterm/` を編集したら `switch` でコピーが更新される。
 
-```sh
-cd ~/dotfiles
-scripts/install-wezterm-config.sh
-```
-
-PC ごとの workspace 一覧は git 管理しない `wezterm/workspace.local.lua` に書く。
+PC ごとの workspace 一覧は git 管理しない `wezterm/workspace.local.lua` に書く(これもコピー対象)。
 
 WSL ディストリビューション名が `Ubuntu` ではない場合は、Windows 側で確認して
 `wezterm/platform.lua` の domain 名を合わせる。
@@ -247,13 +242,25 @@ ls .git/hooks/pre-commit
 
 ファイルが存在すれば OK。存在しない場合は `home-manager switch` を再実行する。
 
-### WezTerm 設定(macOS のみ)
+### WezTerm 設定
+
+**macOS**:
 
 ```sh
 ls -la ~/.config/wezterm
 ```
 
 `~/dotfiles/wezterm` への symlink になっていれば OK。
+
+**WSL2**: Windows 側 `~/.wezterm.lua` が生成され、先頭に `WEZTERM_DOTFILES_CONFIG_DIR` が書かれていれば OK。
+
+```sh
+win_home="$(wslpath -u "$(cd /mnt/c && cmd.exe /c 'echo %USERPROFILE%' | tr -d '\r')")"
+head -n1 "$win_home/.wezterm.lua"
+ls "$win_home/.config/wezterm"   # wezterm/ の lua がコピーされていれば OK
+```
+
+生成されない場合はリポジトリが `~/dotfiles` 以外に置かれている可能性があるので確認する。
 
 ## トラブルシューティング
 
