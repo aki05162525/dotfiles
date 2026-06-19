@@ -14,6 +14,8 @@
         email = "akihiro05162525@gmail.com";
       };
       core.autocrlf = "input";
+      # WSL2 専用: Windows 側 1Password SSH Agent を使うため ssh.exe を呼ぶ。
+      # 現状 Linux 構成は WSL2 のみだが、非 WSL の Linux を足す場合はここを見直すこと。
       core.sshCommand = pkgs.lib.mkIf pkgs.stdenv.isLinux "ssh.exe";
       init.defaultBranch = "main";
       gpg = {

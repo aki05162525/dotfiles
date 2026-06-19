@@ -21,6 +21,10 @@
   # 変更する場合はリリースノートを参照すること。
   home.stateVersion = "25.11";
 
+  # 自己更新する AI CLI 等を置く ~/.local/bin を PATH に通す。
+  # hm-session-vars.sh 経由で全シェルから一貫して読まれる。
+  home.sessionPath = [ "$HOME/.local/bin" ];
+
   # OS 共通のパッケージ。OS 依存のものは lib.optionals で足す。
   home.packages =
     with pkgs;

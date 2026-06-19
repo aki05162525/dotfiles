@@ -12,9 +12,6 @@
       ll = "ls -la";
       g = "git";
     };
-    envExtra = ''
-      export PATH="$HOME/.local/bin:$PATH"
-    '';
     initContent = ''
       if [[ "$TERM_PROGRAM" == "WezTerm" ]]; then
         function _wezterm_osc7_pwd() {
