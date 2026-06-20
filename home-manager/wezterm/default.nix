@@ -50,8 +50,20 @@
                 echo "wezterm: $dest/$base を更新しました。"
               fi
             done
-            # 旧コピー方式の名残(.config/wezterm/loader.lua)は不要なので掃除。
-            rm -f "$dest/loader.lua"
+            # repo から消えた/リネームされた lua を Windows 側からも掃除(ドリフト防止)。
+            # コピー対象(src の *.lua から loader と .example を除いた集合)に無い dest 側の
+            # lua を削除する。これで rename / 削除が反映され、旧コピー方式の名残
+            # (.config/wezterm/loader.lua)もここで消える。
+            # workspace.local.lua(PC ごと・git 管理外だが src には存在しコピー対象)は
+            # src に在る限り消されない。
+            for f in "$dest"/*.lua; do
+              [ -e "$f" ] || continue # glob 無マッチ対策
+              base="$(basename "$f")"
+              if [ ! -f "$src/$base" ] || [ "$base" = loader.lua ] || [ "$base" = workspace.local.lua.example ]; then
+                rm -f "$f"
+                echo "wezterm: $f を削除しました(repo に存在しないため)。"
+              fi
+            done
 
             # Windows 側エントリ ~/.wezterm.lua を生成(コピー先を指す bootstrap)。
             target="$win_home/.wezterm.lua"
