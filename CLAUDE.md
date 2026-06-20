@@ -26,6 +26,7 @@ dotfiles/
 │  ├─ starship/
 │  │  ├─ default.nix
 │  │  └─ starship.toml
+│  ├─ wezterm/default.nix # WezTerm 反映(macOS symlink / WSL2 コピー activation)
 │  └─ ...
 ├─ wezterm/               # WezTerm 設定の実体(switch で各 OS へ反映)
 │  ├─ wezterm.lua
@@ -98,8 +99,8 @@ home-manager switch --flake .#takagi@mac   # macOS (Apple Silicon)
 
 WezTerm は Windows 側アプリだが、設定実体はこのリポジトリの `wezterm/` で管理し、**`home-manager switch` で各 OS へ反映**する(専用スクリプトは廃止)。リポジトリが常に source of truth で、Windows 側に古いコピーが置き去りになるドリフトを防ぐ。
 
-- **WSL2 (Windows)**: `home.nix` の `weztermWslConfig` activation が、`switch` のたびに `wezterm/*.lua` を Windows 側 `%USERPROFILE%\.config\wezterm` へミラーコピーし、エントリ `~/.wezterm.lua` をそこへ向ける(`\\wsl.localhost` 越しの直接参照は遅い・たまに不安定なためコピー方式)。
-- **macOS**: `~/.config/wezterm` をリポジトリの `wezterm/` へ symlink する(`home.nix` の `home.file`。symlink なので常に同期)。
+- **WSL2 (Windows)**: `home-manager/wezterm/default.nix` の `weztermWslConfig` activation が、`switch` のたびに `wezterm/*.lua` を Windows 側 `%USERPROFILE%\.config\wezterm` へミラーコピーし、エントリ `~/.wezterm.lua` をそこへ向ける(`\\wsl.localhost` 越しの直接参照は遅い・たまに不安定なためコピー方式)。
+- **macOS**: `~/.config/wezterm` をリポジトリの `wezterm/` へ symlink する(`home-manager/wezterm/default.nix` の `home.file`。symlink なので常に同期)。
 
 どちらも `switch` 後に追加作業は不要で、`wezterm/*.lua` を編集したら **WSL は `home-manager switch` でコピーを更新 → WezTerm をリロード(Ctrl+Shift+R)、macOS はリロードのみ**で反映される。
 

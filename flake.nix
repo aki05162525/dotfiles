@@ -10,7 +10,12 @@
   };
 
   outputs =
-    { nixpkgs, home-manager, ... }:
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      ...
+    }:
     let
       # ホスト(マシン)ごとに変わる値(OS と username)だけを渡す。
       # homeDirectory は OS と username から自動で組み立てる。
@@ -52,6 +57,17 @@
           system = "aarch64-darwin";
           username = "takagi";
         };
+      };
+
+      # `nix flake check` で Home Manager 構成が実際に build できるかを保証する。
+      # homeConfigurations は標準出力ではないため flake check では「評価のみ・build skip」
+      # になり、設定が build 可能かを検証できない。activationPackage を checks に出すことで、
+      # その system に対応する構成だけが通常どおり build 検査される
+      # (Linux では Linux 側、macOS では macOS 側のみ。非対応 system は自動で omit される)。
+      # これで lefthook.yml の pre-push(`nix flake check`)の思想を変えずに実ビルド検査になる。
+      checks = {
+        x86_64-linux.home-manager = self.homeConfigurations."akihiro@wsl".activationPackage;
+        aarch64-darwin.home-manager = self.homeConfigurations."takagi@mac".activationPackage;
       };
 
       # `nix fmt` で使うフォーマッタ。各マシンの system 分を定義する。
