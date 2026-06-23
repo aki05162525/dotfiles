@@ -12,7 +12,8 @@
     settings = {
       user = {
         name = "aki05162525";
-        email = "akihiro05162525@gmail.com";
+        # public リポジトリのコミットに本物のメールを刻まないため GitHub の noreply を使う。
+        email = "156570014+aki05162525@users.noreply.github.com";
       };
       core.autocrlf = "input";
       # WSL2 専用: Windows 側 1Password SSH Agent を使うため ssh.exe を呼ぶ。
