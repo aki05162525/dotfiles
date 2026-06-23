@@ -148,6 +148,25 @@ Claude Code / codex / gemini などの AI CLI は **自己更新する**ため N
 
 Rust の cargo/rustc は **rustup のまま**(rustup 自体が公式のバージョン管理機構なので)。
 
+## SSH キー / コミット署名
+
+SSH キーは **1Password で管理**し、ディスク上に秘密鍵(`~/.ssh/id_*`)を置かない。**1台 = 1キー**の方針で、マシンごとに別々のキーを割り当てる(マシン間で共有しない)。
+
+- **認証 (git push/pull)**:
+  - WSL2: `git/default.nix` の `core.sshCommand = "ssh.exe"` で Windows 側 1Password SSH Agent を使う。
+  - macOS: 1Password アプリの SSH Agent(1Password 側で有効化)を使う。
+- **コミット署名**: `gpg.format = ssh` + `commit.gpgsign = true`。署名バイナリは OS 別に `git/default.nix` で分岐:
+  - WSL2: `op-ssh-sign-wsl.exe`(WindowsApps が WSL の PATH に乗るため、ユーザー名を含む絶対パスにせず素の名前で解決させる)
+  - macOS: `/Applications/1Password.app/Contents/MacOS/op-ssh-sign`
+- **`user.signingkey`(= 公開鍵)はマシン固有**なので nix には書かず、`~/.gitconfig.local`(`programs.git.includes` で取り込み・git 管理外)に置く。
+
+新しいマシンを足すときの手順:
+
+1. 1Password で SSH キー(ed25519)を新規作成する。
+2. GitHub の SSH keys に公開鍵を **Authentication Key と Signing Key の両方**で登録する(同じ鍵でよい。署名用も登録しないとコミットに "Verified" が付かない)。
+3. その公開鍵を `~/.gitconfig.local` の `[user] signingkey` に書く。
+4. WSL2 の場合、Windows 側 1Password の 設定 → 開発者 で「SSH エージェントを使用」を ON にする。
+
 ## 別マシンへの展開
 
 [docs/setup.md](docs/setup.md) 参照。
