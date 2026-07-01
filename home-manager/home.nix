@@ -26,6 +26,13 @@
   # hm-session-vars.sh 経由で全シェルから一貫して読まれる。
   home.sessionPath = [ "$HOME/.local/bin" ];
 
+  # WSL2: BROWSER を設定すると xdg-open がこれを最優先で使うため、
+  # Linux 側の chromium 等へフォールバックせず常に Windows 既定ブラウザが開く
+  # (wsl-open は下の home.packages が提供。wslu は discontinued のため使わない)。
+  home.sessionVariables = lib.optionalAttrs pkgs.stdenv.isLinux {
+    BROWSER = "wsl-open";
+  };
+
   # OS 共通のパッケージ。OS 依存のものは lib.optionals で足す。
   home.packages =
     with pkgs;
@@ -47,6 +54,7 @@
     ]
     ++ lib.optionals pkgs.stdenv.isLinux [
       net-tools # Linux 専用(Darwin では別系統のためここに置かない)
+      wsl-open # WSL2: xdg-open から Windows 既定ブラウザを開く(wslu は discontinued のため代替)
     ];
 
   programs.home-manager.enable = true;
