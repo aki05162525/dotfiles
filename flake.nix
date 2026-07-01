@@ -7,6 +7,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    herdr = {
+      url = "github:ogulcancelik/herdr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -14,6 +18,7 @@
       self,
       nixpkgs,
       home-manager,
+      herdr,
       ...
     }:
     let
@@ -40,6 +45,7 @@
             {
               home.username = username;
               home.homeDirectory = homeDirectory;
+              home.packages = [ herdr.packages.${system}.default ];
             }
           ];
         };
