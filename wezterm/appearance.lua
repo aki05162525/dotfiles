@@ -51,6 +51,9 @@ function M.apply(config)
     saturation = 0.7,
     brightness = 0.7,
   }
+  config.default_cursor_style = "SteadyBar"
+  config.cursor_blink_rate = 0
+  config.force_reverse_video_cursor = true
   config.use_fancy_tab_bar = false
   config.tab_bar_at_bottom = false
   config.window_frame = {
