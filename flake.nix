@@ -77,10 +77,13 @@
       };
 
       # `nix fmt` で使うフォーマッタ。各マシンの system 分を定義する。
-      # nixfmt は公式フォーマッタ(旧 nixfmt-rfc-style と同一)。
+      # nixfmt-tree は公式フォーマッタ(nixfmt)を treefmt でラップしたもの。
+      # 素の nixfmt を直接 formatter に指定すると `nix fmt`(無引数)がファイル一覧を
+      # 渡さず stdin 待ちでハングするため、リポジトリ全体を再帰フォーマットできる
+      # nixfmt-tree を使う。
       formatter = {
-        x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
-        aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt;
+        x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
+        aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-tree;
       };
     };
 }
