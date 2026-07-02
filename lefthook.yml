@@ -3,7 +3,9 @@
 # 初回だけ `lefthook install` で .git/hooks に注入する(docs/setup.md 参照)。
 #
 # - pre-commit: 差分ファイル対象の速い検査(nixfmt / shellcheck / stylua)
-# - pre-push:   重い検査(nix flake check)は push 時だけ
+#
+# 設定が実際にビルド可能かは `nix flake check` を必要なときに手動で実行して確認する
+# (flake update 直後などキャッシュが効かない場合に重く、push のたびに強制するには不向きなため)。
 #
 # 秘密情報スキャン(trufflehog)は常設せず、必要なときだけ手動で
 #   trufflehog filesystem --no-update .
@@ -21,8 +23,3 @@ pre-commit:
     stylua:
       glob: "*.lua"
       run: stylua --check {staged_files}
-
-pre-push:
-  commands:
-    flake-check:
-      run: nix flake check
