@@ -19,6 +19,14 @@
         }
         precmd_functions+=(_wezterm_osc7_pwd)
       fi
+
+      function hms() {
+        if [[ "$(uname)" == "Darwin" ]]; then
+          home-manager switch --flake .#takagi@mac
+        else
+          home-manager switch --flake .#akihiro@wsl
+        fi
+      }
     '';
     plugins = [
       {
