@@ -180,6 +180,23 @@ pnpm --version
 
 詳しい役割分担は [ツール管理の役割分担](./tool-management.md) を参照。
 
+### AI CLI の skills(サードパーティ)
+
+自作 skill は `skills/` を home-manager が symlink するので追加作業は不要。
+サードパーティ配布の skill は dotfiles に取り込まず、各マシンで公式 installer から入れる
+(実体は `~/.agents/skills/` に置かれ、Claude Code へは symlink、Codex 等は直接読む)。
+
+現在使っているもの:
+
+```sh
+# ホームディレクトリで実行する(リポジトリ内で実行するとプロジェクトレベルに入ってしまう)
+cd ~
+npx modern-web-guidance@latest install
+```
+
+更新は `npx modern-web-guidance@latest update`。
+テレメトリを止めたい場合は `DISABLE_TELEMETRY=1` を環境変数に設定する。
+
 ## 動作確認
 
 ### Nix 管理のツール

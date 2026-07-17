@@ -136,6 +136,7 @@ Claude Code / Codex は同じ Agent Skills 形式(`<name>/SKILL.md`)を採用し
 - **skill の追加・削除時のみ** `git add` + `home-manager switch` が必要。
 - WSL2 でも両 CLI は WSL 内で動くため、wezterm と違いコピー方式は不要(両 OS とも symlink)。
 - ツール固有 skill が必要になったら `skills/claude/` 等に分ける拡張余地あり(現状は全共有)。
+- **サードパーティ配布の skill は dotfiles に取り込まない**(source of truth が upstream のため)。各マシンで公式 installer から入れ、一覧は [docs/setup.md](docs/setup.md) に記録する。
 
 なお `.gitignore` の nix build 成果物パターンは `/result` `/result-*`(ルート限定)。`result-*` のままだと `skills/result-*` のような配下のパスに誤マッチする。
 
