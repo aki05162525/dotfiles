@@ -14,6 +14,7 @@
     ./git
     ./zsh
     ./wezterm
+    ./ai-skills
   ];
 
   # username / homeDirectory は flake.nix で注入される

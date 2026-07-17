@@ -1,6 +1,6 @@
 memo.md
-result
-result-*
+/result
+/result-*
 .claude/settings.local.json
 *.bak
 .vscode/

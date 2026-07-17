@@ -16,8 +16,12 @@ dotfiles/
 ├─ docs/
 │  ├─ setup.md            # 別マシンでのセットアップ手順
 │  └─ tool-management.md  # Nix / mise / corepack 等のレイヤー構造
+├─ skills/                # Claude Code / Codex 共通の Agent Skills(実体)
+│  ├─ japanese-tech-writing/SKILL.md
+│  └─ cognitive-rhythm-writing/SKILL.md
 ├─ home-manager/
 │  ├─ home.nix            # エントリ。ツール別モジュールを imports
+│  ├─ ai-skills/default.nix  # skills/* を両ツールへ skill 単位で symlink
 │  ├─ direnv/default.nix
 │  ├─ fzf/default.nix
 │  ├─ git/default.nix
@@ -123,6 +127,17 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 - activation は最小 PATH で走るため、`wslpath` / `cmd.exe` は絶対パスで呼ぶ。
 
 `workspace.local.lua`(PC ごとの workspace、git 管理外)も `wezterm/` に置けばコピー対象になる。`switch` のたびにコピーが最新化されるので、Windows 側を直接いじる必要はない。
+
+## AI CLI skills の管理
+
+Claude Code / Codex は同じ Agent Skills 形式(`<name>/SKILL.md`)を採用しているため、**リポジトリの `skills/` を source of truth** にして両ツールで共有する。`home-manager/ai-skills/default.nix` が `skills/*` を `~/.claude/skills/<name>` と `~/.codex/skills/<name>` へ **skill 単位で** symlink する(ディレクトリ丸ごとにしないのは、`~/.codex/skills/.system` との同居と、マシンローカル skill の直置きを許すため)。
+
+- symlink は `mkOutOfStoreSymlink` で working copy を直接指すので、**既存 SKILL.md の編集は switch 不要で即反映**される。
+- **skill の追加・削除時のみ** `git add` + `home-manager switch` が必要。
+- WSL2 でも両 CLI は WSL 内で動くため、wezterm と違いコピー方式は不要(両 OS とも symlink)。
+- ツール固有 skill が必要になったら `skills/claude/` 等に分ける拡張余地あり(現状は全共有)。
+
+なお `.gitignore` の nix build 成果物パターンは `/result` `/result-*`(ルート限定)。`result-*` のままだと `skills/result-*` のような配下のパスに誤マッチする。
 
 ## フォーマット
 
