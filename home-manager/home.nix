@@ -15,6 +15,7 @@
     ./zsh
     ./wezterm
     ./ai-skills
+    ./herdr
   ];
 
   # username / homeDirectory は flake.nix で注入される
