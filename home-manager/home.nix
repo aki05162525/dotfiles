@@ -26,7 +26,15 @@
 
   # 自己更新する AI CLI 等を置く ~/.local/bin を PATH に通す。
   # hm-session-vars.sh 経由で全シェルから一貫して読まれる。
-  home.sessionPath = [ "$HOME/.local/bin" ];
+  #
+  # mise の shims も同様にここへ通す。`programs.mise.enableZshIntegration` の
+  # `mise activate zsh` は対話シェルの .zshrc でしか読まれず、husky 等が
+  # git hook を非対話シェルで実行すると mise 管理下の node/pnpm が PATH に
+  # 乗らず "pnpm: command not found" で失敗する。shims 経由なら非対話シェルでも動く。
+  home.sessionPath = [
+    "$HOME/.local/bin"
+    "$HOME/.local/share/mise/shims"
+  ];
 
   # WSL2: BROWSER を設定すると xdg-open がこれを最優先で使うため、
   # Linux 側の chromium 等へフォールバックせず常に Windows 既定ブラウザが開く
