@@ -36,10 +36,15 @@
     "$HOME/.local/share/mise/shims"
   ];
 
-  # WSL2: BROWSER を設定すると xdg-open がこれを最優先で使うため、
-  # Linux 側の chromium 等へフォールバックせず常に Windows 既定ブラウザが開く
-  # (wsl-open は下の home.packages が提供。wslu は discontinued のため使わない)。
-  home.sessionVariables = lib.optionalAttrs pkgs.stdenv.isLinux {
+  home.sessionVariables = {
+    # 未設定だと go が $HOME/go を GOPATH として使い、ホーム直下に go/
+    # (モジュールキャッシュ等)が散らかる。XDG データディレクトリ配下へ逃がす。
+    GOPATH = "$HOME/.local/share/go";
+  }
+  // lib.optionalAttrs pkgs.stdenv.isLinux {
+    # WSL2: BROWSER を設定すると xdg-open がこれを最優先で使うため、
+    # Linux 側の chromium 等へフォールバックせず常に Windows 既定ブラウザが開く
+    # (wsl-open は下の home.packages が提供。wslu は discontinued のため使わない)。
     BROWSER = "wsl-open";
   };
 
