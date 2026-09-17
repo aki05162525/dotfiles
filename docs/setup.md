@@ -186,15 +186,21 @@ pnpm --version
 サードパーティ配布の skill は dotfiles に取り込まず、各マシンで公式 installer から入れる
 (実体は `~/.agents/skills/` に置かれ、Claude Code へは symlink、Codex 等は直接読む)。
 
-現在使っているもの:
+現在使っているもの。いずれも**ホームディレクトリで実行する**(リポジトリ内で実行すると
+プロジェクトレベルに入ってしまう)。
 
 ```sh
-# ホームディレクトリで実行する(リポジトリ内で実行するとプロジェクトレベルに入ってしまう)
 cd ~
+
+# modern-web-guidance: フロントエンド実装の最新プラクティス
 npx modern-web-guidance@latest install
+
+# grill-me: 計画・設計を質問攻めで検証する(skills.sh 経由)
+npx skills add https://github.com/mattpocock/skills --skill grill-me
 ```
 
-更新は `npx modern-web-guidance@latest update`。
+更新は modern-web-guidance が `npx modern-web-guidance@latest update`、
+skills.sh 経由のものが `npx skills update`。
 テレメトリを止めたい場合は `DISABLE_TELEMETRY=1` を環境変数に設定する。
 
 ## 動作確認
