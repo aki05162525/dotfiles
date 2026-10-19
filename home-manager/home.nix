@@ -16,6 +16,7 @@
     ./wezterm
     ./ai-skills
     ./herdr
+    ./claude-code
   ];
 
   # username / homeDirectory は flake.nix で注入される

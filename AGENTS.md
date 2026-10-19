@@ -128,6 +128,16 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 
 `workspace.local.lua`(PC ごとの workspace、git 管理外)も `wezterm/` に置けばコピー対象になる。`switch` のたびにコピーが最新化されるので、Windows 側を直接いじる必要はない。
 
+## Claude Code の設定
+
+`~/.claude/settings.json` は `home-manager/claude-code/settings.json` を source of truth にして `mkOutOfStoreSymlink` で貼る(herdr / ai-skills と同じく、ツール自身が書き戻すため working copy を直接指す)。
+
+- Claude Code 自身(`/config`)や herdr の integration install がこのファイルへ書き戻すので、変更は repo の `git diff` として現れる。意図しない書き戻しに気付けるのが利点。
+- `attribution: false` でコミットの `Co-Authored-By` と PR の "Generated with Claude Code" を全リポジトリで止めている(旧 `includeCoAuthoredBy` は deprecated)。
+- hook のコマンドはマシン間で共有するため絶対パスを書かず `$HOME` 経由にする。
+- 権限の `allow` などマシン固有の設定は git 管理外の `~/.claude/settings.local.json` に置く。
+- `skills/` の共有については下の「AI CLI skills の管理」を参照。
+
 ## AI CLI skills の管理
 
 Claude Code / Codex は同じ Agent Skills 形式(`<name>/SKILL.md`)を採用しているため、**リポジトリの `skills/` を source of truth** にして両ツールで共有する。`home-manager/ai-skills/default.nix` が `skills/*` を `~/.claude/skills/<name>` と `~/.codex/skills/<name>` へ **skill 単位で** symlink する(ディレクトリ丸ごとにしないのは、`~/.codex/skills/.system` との同居と、マシンローカル skill の直置きを許すため)。
