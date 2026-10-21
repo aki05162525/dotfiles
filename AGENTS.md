@@ -135,7 +135,7 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 - Claude Code 自身(`/config`)や herdr の integration install がこのファイルへ書き戻すので、変更は repo の `git diff` として現れる。意図しない書き戻しに気付けるのが利点。
 - `attribution: false` でコミットの `Co-Authored-By` と PR の "Generated with Claude Code" を全リポジトリで止めている(旧 `includeCoAuthoredBy` は deprecated)。
 - hook のコマンドはマシン間で共有するため絶対パスを書かず `$HOME` 経由にする。
-- 権限の `allow` などマシン固有の設定は git 管理外の `~/.claude/settings.local.json` に置く。
+- `~/.claude/settings.local.json` はユーザー全体の設定としては読まれない(`~` で起動したときのプロジェクトローカル扱い)。`enabledPlugins` など常に効かせたい設定は `settings.json` 側に書く。
 - `skills/` の共有については下の「AI CLI skills の管理」を参照。
 
 ## AI CLI skills の管理

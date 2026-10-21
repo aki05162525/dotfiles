@@ -26,5 +26,18 @@
     }
   },
   "tui": "fullscreen",
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "enabledPlugins": {
+    "hono-skill@hono-skill": true,
+    "vercel@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "hono-skill": {
+      "source": {
+        "source": "github",
+        "repo": "yusukebe/hono-skill"
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true
 }

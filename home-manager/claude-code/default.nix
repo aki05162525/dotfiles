@@ -10,8 +10,9 @@
   # working copy を直接指す mkOutOfStoreSymlink にする(herdr / ai-skills と同じ理由)。
   # 書き戻しは repo の git diff として見えるので、意図しない変更に気付ける。
   #
-  # マシン固有の設定(権限の allow など)は git 管理外の
-  # ~/.claude/settings.local.json 側に置くこと。
+  # ~/.claude/settings.local.json はユーザー全体の設定としては読まれない
+  # (~ で起動したときのプロジェクトローカル扱い)ので、
+  # プラグイン等の常に効かせたい設定はこのファイルに書くこと。
   home.file.".claude/settings.json".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/home-manager/claude-code/settings.json";
 }
