@@ -1,4 +1,9 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -21,6 +26,5 @@
     }
   },
   "tui": "fullscreen",
-  "agentPushNotifEnabled": true,
-  "attribution": false
+  "agentPushNotifEnabled": true
 }
