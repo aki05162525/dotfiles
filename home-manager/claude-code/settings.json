@@ -22,7 +22,8 @@
   "effortLevel": "medium",
   "modelSettings": {
     "claude-opus-5": {
-      "effortLevel": "medium"
+      "effortLevel": "medium",
+      "autoCompactWindow": 400000
     }
   },
   "tui": "fullscreen",
