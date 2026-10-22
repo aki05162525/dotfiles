@@ -14,6 +14,9 @@
       tools = {
         node = "24";
         go = "1.26";
+        # macOS 同梱の Python は 3.9 系で、pip を要求バージョン(>=3.10 必須)へ
+        # 上げられない。Python も mise 管理に寄せてシステム Python を使わない。
+        python = "3.14";
       };
     };
   };
