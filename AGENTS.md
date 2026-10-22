@@ -15,7 +15,8 @@ dotfiles/
 ├─ stylua.toml            # Lua フォーマッタ設定(2スペース字下げ)
 ├─ docs/
 │  ├─ setup.md            # 別マシンでのセットアップ手順
-│  └─ tool-management.md  # Nix / mise / corepack 等のレイヤー構造
+│  ├─ tool-management.md  # Nix / mise / corepack 等のレイヤー構造
+│  └─ emudhra-ca-incident.md # eMudhra 中間CA 漏洩(2026-10)の対応手順
 ├─ skills/                # Claude Code / Codex 共通の Agent Skills(実体)
 │  ├─ japanese-tech-writing/SKILL.md
 │  └─ cognitive-rhythm-writing/SKILL.md
