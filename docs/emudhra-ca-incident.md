@@ -10,10 +10,17 @@ eMudhra (emSign) の中間CA 8枚の秘密鍵が、2025-04-30 の鍵生成セレ
 
 ## 対応状況
 
-| マシン | 状態 |
-|---|---|
-| `takagi@mac` (macOS / Apple Silicon) | 完了 (2026-10-22) |
-| `akihiro@wsl` (WSL2 Ubuntu on Windows) | **未対応** |
+WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を共有する。
+構成名ではマシンを区別できないので、**`hostname` 単位で記録する**。
+
+| ホスト名 | 構成 | OS | 状態 |
+|---|---|---|---|
+| (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22) |
+| | `akihiro@wsl` | WSL2 Ubuntu | **未対応** |
+| | `akihiro@wsl` | WSL2 Ubuntu | **未対応** |
+
+各マシンで作業したら、自分の `hostname` を記入して状態を更新する。
+行が足りなければ足す。
 
 ## WSL2 / Windows 側の手順
 
@@ -47,11 +54,16 @@ macOS で必要だった手動のルート削除スクリプトは、Ubuntu で�
 ### 3. dotfiles を反映
 
 `home-manager/mise/default.nix` に `python = "3.14"` が入っているので、pull して switch する。
+構成名は `<ユーザー名>@wsl`。自分のユーザー名が違う場合は `flake.nix` の
+`homeConfigurations` を確認する。
 
 ```sh
-cd ~/dotfiles && git pull
-home-manager switch --flake .#akihiro@wsl
+cd ~/dotfiles && git pull --rebase
+home-manager switch --flake ".#$(whoami)@wsl"
 ```
+
+複数の WSL マシンで作業するときは、**後から作業するマシンで必ず `git pull --rebase`
+してから** 対応状況を追記する。先のマシンの記録を上書きしないため。
 
 ### 4. ランタイムの更新
 
