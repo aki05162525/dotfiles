@@ -136,7 +136,8 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 - Claude Code 自身(`/config`)や herdr の integration install がこのファイルへ書き戻すので、変更は repo の `git diff` として現れる。意図しない書き戻しに気付けるのが利点。
 - `attribution: false` でコミットの `Co-Authored-By` と PR の "Generated with Claude Code" を全リポジトリで止めている(旧 `includeCoAuthoredBy` は deprecated)。
 - hook のコマンドはマシン間で共有するため絶対パスを書かず `$HOME` 経由にする。
-- `effortLevel` / `autoCompactWindow` はトップレベルに置く(モデル別の保存値がない全モデルに効く)。`/effort` や `/autocompact` は `modelSettings` にモデル名単位で書き戻すが、モデルが変わると古いエントリが残るだけなので、書き戻しは取り込まずトップレベルの値を直す。
+- `model` と `effortLevel` は書かない。未設定ならプランの推奨モデルに追従し、effort もモデルごとの推奨既定値(Opus 5.5 は medium、他は high など)になる。固定するとモデル更新時に推奨から外れる。
+- `autoCompactWindow` は好みの値なのでトップレベルに置く(全モデルに効き、モデルの上限で自動的に頭打ち)。`/effort` や `/autocompact` は `modelSettings` にモデル名単位で書き戻すが、モデルが変わると古いエントリが残るだけなので、書き戻しは取り込まずトップレベルの値を直す。
 - `~/.claude/settings.local.json` はユーザー全体の設定としては読まれない(`~` で起動したときのプロジェクトローカル扱い)。`enabledPlugins` など常に効かせたい設定は `settings.json` 側に書く。
 - `skills/` の共有については下の「AI CLI skills の管理」を参照。
 

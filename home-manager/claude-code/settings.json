@@ -33,7 +33,6 @@
     }
   },
   "language": "Japanese",
-  "effortLevel": "medium",
   "autoCompactWindow": 400000,
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
