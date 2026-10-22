@@ -16,7 +16,7 @@ WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を�
 | ホスト名 | 構成 | OS | 状態 |
 |---|---|---|---|
 | (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22) |
-| | `akihiro@wsl` | WSL2 Ubuntu | **未対応** |
+| `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | WSL 内は完了 (2026-10-22)。Windows 側は手作業で実施 |
 | | `akihiro@wsl` | WSL2 Ubuntu | **未対応** |
 
 各マシンで作業したら、自分の `hostname` を記入して状態を更新する。
@@ -135,6 +135,33 @@ cache.nixos.org と github.com)。成立には経路の乗っ取りが前提に�
   (128 → 126 本)。バックアップは `/etc/ssl/cert.pem.orig` と `.bak.<timestamp>`。
 - Python を mise 管理へ移した。macOS 同梱 Python は 3.9 系で、pip 26.2.2 が要求する
   3.10 以上に届かないため。
+
+## `minipc` (WSL2) で行ったこと (記録)
+
+2026-10-22 に実施。
+
+- `ca-certificates` は作業前から修正版 `20260816ubuntu0.24.04.1` だった
+  (`apt-cache policy` の Candidate も同じ)。apt の再実行は不要だったので省いた。
+- `home-manager switch --flake .#akihiro@wsl` で mise の `python = "3.14"` を反映した。
+- `mise install node@24 go@1.26 python@3.14` の到達バージョン:
+
+  | ツール | 到達 |
+  |---|---|
+  | Node.js | 24.22.1 |
+  | Go | 1.26.10 |
+  | Python | 3.14.8 |
+  | pip | 26.2.2 |
+  | certifi | 2026.10.19 (pip 同梱の `pip._vendor.certifi`。単体の certifi パッケージは未導入) |
+
+- `rustup self update && rustup update`: rustup 1.29.0 → 1.29.2、stable は rustc 1.92.0 → 1.99.1。
+  rustup の本体は `~/.cargo/bin/rustup` にあるが、PATH では mise の `rustup` shim が先に
+  見つかって `No version is set for shim: rustup` で失敗する。本体を絶対パスで呼んで実行した。
+- 検証: 2つの URL とも `curl: (60) unable to get local issuer certificate` で失敗した (期待どおり)。
+  ここでの curl は `/usr/bin/curl`。
+- この WSL では `NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt` (修正済みのシステムストア)
+  を指していて、「Nix 管理で未達の項目」に書いた `nss-cacert` は使われていなかった。
+- 未達: `mise 2026.6.11` / `uv 0.11.25` (Nix 管理。nixpkgs が追いつくのを待つ方針どおり手を付けていない)。
+- Windows 側 (Windows Update、ブラウザの更新と再起動) は手作業で実施する。
 
 ## 参考
 
