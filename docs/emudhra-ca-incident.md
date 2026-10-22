@@ -17,7 +17,7 @@ WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を�
 |---|---|---|---|
 | (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22) |
 | `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22) |
-| | `akihiro@wsl` | WSL2 Ubuntu | **未対応** |
+| `aki-thinkpad` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22) |
 
 各マシンで作業したら、自分の `hostname` を記入して状態を更新する。
 行が足りなければ足す。
@@ -161,6 +161,46 @@ cache.nixos.org と github.com)。成立には経路の乗っ取りが前提に�
 - この WSL では `NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt` (修正済みのシステムストア)
   を指していて、「Nix 管理で未達の項目」に書いた `nss-cacert` は使われていなかった。
 - 未達: `mise 2026.6.11` / `uv 0.11.25` (Nix 管理。nixpkgs が追いつくのを待つ方針どおり手を付けていない)。
+- Windows 側 (Windows Update、ブラウザの更新と再起動) は手作業で実施した。
+
+## `aki-thinkpad` (WSL2) で行ったこと (記録)
+
+2026-10-22 に実施。Ubuntu 24.04.4 LTS。
+
+- `ca-certificates` は作業前が `20260601~24.04.1` で**修正版に達していなかった**。
+  さらに `apt-cache policy` の Candidate も同じ古いバージョンを指していて、apt の
+  インデックスが古かった。`minipc` と違い **`sudo apt update` が必須**で、これを省くと
+  `apt install --only-upgrade` は何もせず終わる。update 後に Candidate が
+  `20260816ubuntu0.24.04.1` に変わり、install で `4 added, 5 removed` となった。
+- この更新で削除されたのは `emSign ECC Root CA - G3` のみだった (121 → 120 本)。
+  `AAA Certificate Services` はこのマシンには作業前から存在しなかった。
+  `emSign ECC Root CA - C3` / `emSign Root CA - C1` / `emSign Root CA - G1` は更新後も
+  信頼ストアに残る。つまり本書の「emSign 系ルートが**両方**削除される」(手順 2) は
+  正確ではなく、Ubuntu の修正版が外すのは G3 だけだった。残る 3 枚を手で消すべきかは
+  未確認。少なくとも手順 5 の検証は両 URL とも失敗するので、追加のルート無効化は
+  行わなかった。
+- `home-manager switch --flake .#akihiro@wsl` で mise の `python = "3.14"` を反映した。
+  このとき `~/.claude/settings.json` が実ファイル (9/20 付) として残っていて
+  `mkOutOfStoreSymlink` と衝突し、switch が `would be clobbered` で失敗した。
+  中身は repo 版にない `model` / `effortLevel` / `modelSettings` を持ち、逆に repo 側の
+  `attribution` / `language` / marketplace 設定を欠く古いコピーだったので、repo を
+  source of truth として `-b backup` で `~/.claude/settings.json.backup` へ退避させた。
+- `mise install node@24 go@1.26 python@3.14` の到達バージョン:
+
+  | ツール | 到達 |
+  |---|---|
+  | Node.js | 24.22.1 |
+  | Go | 1.26.10 |
+  | Python | 3.14.8 |
+  | pip | 26.2.2 |
+  | certifi | 2026.10.19 (pip 同梱の `pip._vendor.certifi`) |
+
+- rustup は**このマシンには未導入**だったので手順 4 は該当なし (新規導入もしていない)。
+- 検証: 2つの URL とも `curl: (60) unable to get local issuer certificate` で失敗した
+  (期待どおり)。ここでの curl は `/usr/bin/curl` (OpenSSL 3.0.13)。
+- `NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt` を指していて、`minipc` と同じく
+  「Nix 管理で未達の項目」の `nss-cacert` は使われていなかった。
+- 未達: `mise 2026.6.11` / `uv 0.11.25` (Nix 管理。nixpkgs 待ちの方針どおり手を付けていない)。
 - Windows 側 (Windows Update、ブラウザの更新と再起動) は手作業で実施した。
 
 ## 参考
