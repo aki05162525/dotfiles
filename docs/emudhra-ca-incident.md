@@ -16,7 +16,7 @@ WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を�
 | ホスト名 | 構成 | OS | 状態 |
 |---|---|---|---|
 | (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22) |
-| `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | WSL 内は完了 (2026-10-22)。Windows 側は手作業で実施 |
+| `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22) |
 | | `akihiro@wsl` | WSL2 Ubuntu | **未対応** |
 
 各マシンで作業したら、自分の `hostname` を記入して状態を更新する。
@@ -161,7 +161,7 @@ cache.nixos.org と github.com)。成立には経路の乗っ取りが前提に�
 - この WSL では `NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt` (修正済みのシステムストア)
   を指していて、「Nix 管理で未達の項目」に書いた `nss-cacert` は使われていなかった。
 - 未達: `mise 2026.6.11` / `uv 0.11.25` (Nix 管理。nixpkgs が追いつくのを待つ方針どおり手を付けていない)。
-- Windows 側 (Windows Update、ブラウザの更新と再起動) は手作業で実施する。
+- Windows 側 (Windows Update、ブラウザの更新と再起動) は手作業で実施した。
 
 ## 参考
 
