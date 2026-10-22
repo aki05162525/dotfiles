@@ -18,6 +18,10 @@
         # 上げられない。Python も mise 管理に寄せてシステム Python を使わない。
         python = "3.14";
       };
+      # pnpm / yarn は corepack に任せる(docs/tool-management.md)。
+      # corepack enable は Node のインストール単位で効くため、Node を上げるたびに
+      # pnpm シムが消える。インストール時に mise が自動で有効化するようにする。
+      settings.node.corepack = true;
     };
   };
 }
