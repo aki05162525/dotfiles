@@ -57,6 +57,14 @@ Nix (Home Manager)
 
 理由: 自己更新する。Nix store は read-only なので auto-update が `EROFS` で失敗する。リリース頻度も高く nixpkgs が追いつかない。
 
+### Q. T3 Code CLI (t3) は何で管理?
+
+**A. 公式インストーラで `~/.local/bin/t3` に導入し、`t3 update` で更新する。**
+
+Home Manager は `~/.local/bin` の PATH 設定を管理する。
+自己更新できるよう CLI 本体は Nix store に置かず、Desktop が配置する WSL runtime のハッシュ付きパスも固定しない。
+導入手順は [セットアップの T3 Code CLI](./setup.md#t3-code-cli) を参照。
+
 ### Q. Rust (cargo, rustc) は?
 
 **A. rustup のまま。**

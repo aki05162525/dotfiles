@@ -180,6 +180,26 @@ mise の `settings.node.corepack = true` で Node のインストール時に co
 
 詳しい役割分担は [ツール管理の役割分担](./tool-management.md) を参照。
 
+### T3 Code CLI
+
+WSL2 (Ubuntu) と macOS (Apple Silicon) では、[公式インストーラ](https://github.com/pingdotgg/t3code/blob/main/docs/user/install.md#command-line)で `t3` を導入する。
+WSL2 では Ubuntu 側のターミナルで実行する。
+
+```sh
+curl -fsSL https://t3.codes/install.sh | sh
+command -v t3
+t3 --version
+```
+
+`command -v t3` が `~/.local/bin/t3` を指せば導入できている。
+このディレクトリは `home-manager/home.nix` の `home.sessionPath` に登録済みなので、PATH の追加は不要。
+見つからない場合は Home Manager を適用してログインし直す。
+
+CLI 本体は公式インストーラで管理し、更新には `t3 update` を使う。
+Desktop が WSL 内に配置する `~/.t3/wsl-runtime/<hash>/t3` はアプリ管理の実行ファイルなので、dotfiles から特定のハッシュを PATH や symlink に固定しない。
+CLI の導入と T3 Connect の認証は別の操作であり、この手順ではサーバーの起動や接続設定の変更は行わない。
+接続の調査には [公式のトラブルシューティング](https://github.com/pingdotgg/t3code/blob/main/docs/user/t3-connect-troubleshooting.md)を参照する。
+
 ### herdr と Claude Code の integration
 
 Claude Code を公式インストーラで導入した後、herdr の integration を各マシンでインストールする。
