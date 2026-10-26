@@ -16,11 +16,20 @@ WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を�
 | ホスト名 | 構成 | OS | 状態 |
 |---|---|---|---|
 | (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22)。Nix の CA バンドルは 2026-10-26 に対応 |
-| `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22) |
+| `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 初回対応済み (2026-10-22)。2026-10-26 に uv 更新と TLS 拒否を確認。mise は未達 (下記) |
 | `aki-thinkpad` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22) |
 
 各マシンで作業したら、自分の `hostname` を記入して状態を更新する。
 行が足りなければ足す。
+
+### minipc の追加確認 (2026-10-26)
+
+`ba08b7c` を pull し、`home-manager switch --flake '.#akihiro@wsl'` を実行した。
+
+- uv は `0.13.4` に更新済み。
+- Ubuntu の `ca-certificates` は `20260816ubuntu0.24.04.1` で、Nix の `ssl-cert-file` は `/etc/ssl/certs/ca-certificates.crt` を参照している。
+- 下記「検証」の 2 URL は、どちらも curl が証明書エラー (終了コード 60) で拒否した。
+- mise は `2026.10.3` で、要求バージョン `2026.10.17` には未達。
 
 ## WSL2 / Windows 側の手順
 
