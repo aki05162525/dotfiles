@@ -9,7 +9,7 @@
   # macOS: ~/.config/wezterm → ~/dotfiles/wezterm をディレクトリごと symlink する
   #         (symlink なので常に repo と同期)。
   # WSL2 は下の weztermWslConfig activation で Windows 側へコピーする。
-  home.file.".config/wezterm" = lib.mkIf pkgs.stdenv.isDarwin {
+  home.file.".config/wezterm" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/wezterm";
   };
 
@@ -26,7 +26,7 @@
   #   - dry-run ではコピー先と一時ファイルに書き込まない
   #   - 内容が同じファイルは書き込まない(cmp で冪等)
   #   - ~/.wezterm.lua は dotfiles 生成物(WEZTERM_DOTFILES_CONFIG_DIR 署名)以外は上書きしない
-  home.activation.weztermWslConfig = lib.mkIf pkgs.stdenv.isLinux (
+  home.activation.weztermWslConfig = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       (
         if grep -qiE 'microsoft|wsl' /proc/version 2>/dev/null; then

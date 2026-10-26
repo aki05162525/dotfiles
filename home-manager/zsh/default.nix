@@ -20,7 +20,7 @@
     # 経路は静的バンドルでは原理的に塞げないため、恒久的にこちらを既定にする。
     # 非対話シェルから呼ばれる curl にも効かせたいので .zshrc ではなく .zshenv に置く。
     # WSL の curl には secure-transport バックエンドが無いので macOS 限定。
-    envExtra = lib.optionalString pkgs.stdenv.isDarwin ''
+    envExtra = lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
       export CURL_SSL_BACKEND=secure-transport
     '';
 

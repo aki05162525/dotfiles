@@ -19,7 +19,7 @@
 # 世代が store パスを GC root として保持し、switch のたびに追従する。
 #
 # WSL2 はシステムストア (apt の ca-certificates) を使っていて問題がないので対象外。
-lib.mkIf pkgs.stdenv.isDarwin {
+lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
   home.file.".local/share/nix-cacert/ca-bundle.crt".source =
     "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
 

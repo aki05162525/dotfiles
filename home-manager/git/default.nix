@@ -18,7 +18,7 @@
       core.autocrlf = "input";
       # WSL2 専用: Windows 側 1Password SSH Agent を使うため ssh.exe を呼ぶ。
       # 現状 Linux 構成は WSL2 のみだが、非 WSL の Linux を足す場合はここを見直すこと。
-      core.sshCommand = pkgs.lib.mkIf pkgs.stdenv.isLinux "ssh.exe";
+      core.sshCommand = pkgs.lib.mkIf pkgs.stdenv.hostPlatform.isLinux "ssh.exe";
       init.defaultBranch = "main";
       gpg = {
         format = "ssh";
@@ -27,7 +27,7 @@
         #       ユーザー名を含む絶対パスにせず素の名前で解決させる)。
         # macOS: 1Password.app 同梱の op-ssh-sign。
         ssh.program =
-          if pkgs.stdenv.isDarwin then
+          if pkgs.stdenv.hostPlatform.isDarwin then
             "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
           else
             "op-ssh-sign-wsl.exe";

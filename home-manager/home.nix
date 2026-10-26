@@ -43,7 +43,7 @@
     # (モジュールキャッシュ等)が散らかる。XDG データディレクトリ配下へ逃がす。
     GOPATH = "$HOME/.local/share/go";
   }
-  // lib.optionalAttrs pkgs.stdenv.isLinux {
+  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
     # WSL2: BROWSER を設定すると xdg-open がこれを最優先で使うため、
     # Linux 側の chromium 等へフォールバックせず常に Windows 既定ブラウザが開く
     # (wsl-open は下の home.packages が提供。wslu は discontinued のため使わない)。
@@ -69,7 +69,7 @@
       shellcheck
       stylua
     ]
-    ++ lib.optionals pkgs.stdenv.isLinux [
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
       net-tools # Linux 専用(Darwin では別系統のためここに置かない)
       wsl-open # WSL2: xdg-open から Windows 既定ブラウザを開く(wslu は discontinued のため代替)
     ];
