@@ -15,7 +15,7 @@ WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を�
 
 | ホスト名 | 構成 | OS | 状態 |
 |---|---|---|---|
-| (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22) |
+| (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22)。Nix の CA バンドルは 2026-10-26 に対応 |
 | `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22) |
 | `aki-thinkpad` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22) |
 
@@ -112,18 +112,98 @@ sudo update-ca-certificates --fresh
 
 ## Nix 管理で未達の項目
 
-`uv` と `mise` は Nix 管理だが、nixpkgs がまだ要求バージョンに追いついていない
-(2026-10-22 時点で `uv 0.13.1` / `mise 2026.10.3` / `cacert 3.126`)。
-`NIX_SSL_CERT_FILE` が指す `nss-cacert` にも `emSign ECC Root CA - G3` が残る。
+`uv` と `mise` は Nix 管理なので、nixpkgs が要求バージョンに追いつくのを待って
+`flake.lock` を更新する。
 
-追いついたら両マシンで一度に解決する。
+| 項目 | 状態 |
+|---|---|
+| uv 0.13.4 | 済。nixos-unstable `3ec6363` (2026-10-23) に到達し、2026-10-26 に `flake.lock` を更新 |
+| mise 2026.10.17 | 未達。[nixpkgs#577218](https://github.com/NixOS/nixpkgs/pull/577218) は 10/24 に master へマージ済みで、nixos-unstable への到達待ち |
+| nixpkgs の `cacert` | 3.131.1 (3.126 から更新)。`emSign ECC Root CA - G3` / `- C3` / `Root CA - C1` が外れ、`emSign Root CA - G1` だけ残る。`AAA Certificate Services` (ラベルは `Comodo AAA Services root`) は残るが、TRUSTED CERTIFICATE 形式でサーバー認証の信頼を外されている |
+
+mise が channel に入ったかは、マージコミットと channel の比較で確認できる
+(`behind` か `identical` なら到達済み)。
 
 ```sh
-cd ~/dotfiles && nix flake update && home-manager switch --flake .#<構成>
+gh api repos/NixOS/nixpkgs/compare/nixos-unstable...7acaf38 --jq .status
 ```
 
-実リスクは限定的で、このバンドルを使うのは主に `nix` 自身(接続先は
-cache.nixos.org と github.com)。成立には経路の乗っ取りが前提になる。
+到達したら、`flake.lock` を更新して各マシンで反映する。
+
+```sh
+cd ~/dotfiles && nix flake update nixpkgs home-manager && home-manager switch --flake .#<構成>
+```
+
+`herdr` を対象から外しているのは、2026-10-26 時点で `nix flake update` が herdr を
+現行の lock より古いコミットへ戻してしまうため。GitHub API のレート制限で
+「using cached version」と出たら、更新は古いキャッシュで行われている。その場合は
+`NIX_CONFIG="access-tokens = github.com=$(gh auth token)"` を付けて実行し直す。
+
+### macOS では Nix 自身が漏洩 CA を信頼していた
+
+macOS 機の Nix は、2 か所で古い CA バンドルを使っていた。どちらも Home Manager の外にあるので、
+`flake.lock` を更新しても変わらない。
+
+| 使う側 | 参照先 | 中身 |
+|---|---|---|
+| Nix 本体 (クライアントとデーモン) | `/etc/nix/nix.conf` の `ssl-cert-file = /etc/nix/macos-keychain.crt` | Determinate Nix が macOS キーチェーンを PEM に書き出したもの。G3 と AAA を含む |
+| シェルの `NIX_SSL_CERT_FILE` (nixpkgs 由来のツール) | `/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt` | Nix 本体付属の `nss-cacert-3.121`。emSign 4 枚がすべて残る |
+
+macOS 自体はこの中間 CA を拒否する (NSURLSession を使う `nscurl` で検証用の 2 URL が
+どちらも `-1202` / `-9807` で失敗する)。ただ、証明書だけを並べた PEM バンドルには、
+macOS が拒否に使っている情報が載らないらしい。拒否の仕組み (失効か信頼設定か) は
+確認できていない。nixpkgs の curl (OpenSSL) で検証用の 2 URL を
+`--cacert /etc/nix/macos-keychain.crt` 付きで叩くと、**どちらも 200 で接続できた**
+(2026-10-26)。Nix 自身の `builtins.fetchurl` でも同じく取得できた。Determinate Nix を
+更新しても、キーチェーンから書き出す方式は変わらないので直らない。
+
+主な影響は `nix flake update` で nixpkgs などを取得する経路。経路を乗っ取られると、
+改ざんされた入力がそのまま `flake.lock` に固定される。cache.nixos.org のバイナリは
+公開鍵署名で検証されるので、TLS が破られても改ざんは通らない。
+
+対応として `home-manager/cacert/default.nix` (macOS 限定) を追加した。
+
+- nixpkgs の `cacert` を `~/.local/share/nix-cacert/ca-bundle.crt` に置く。switch のたびに
+  追従し、Home Manager の世代が GC root になる。このバンドルでは検証用の 2 URL がどちらも失敗する。
+- `NIX_SSL_CERT_FILE` をそこへ向ける。`nix-daemon.sh` は設定済みの値を上書きしない。
+- Nix の `ssl-cert-file` もそこへ向ける。書く場所はユーザー設定の `~/.config/nix/nix.conf`。
+
+`/etc/nix/nix.custom.conf` に書く方法は効かなかった。`/etc/nix/nix.conf` は
+`!include nix.custom.conf` より**後ろ**で `ssl-cert-file = /etc/nix/macos-keychain.crt` を
+設定していて、custom 側の値はこれに上書きされる。`nix.conf` 自体は Determinate Nix が
+置き換えるので編集できず、`macos-keychain.crt` もデーモンが起動するたびに書き直される。
+ユーザー設定は `/etc/nix/nix.conf` の後に読まれるので、こちらは効く。
+
+ユーザー設定が効くのはクライアント側の取得 (flake 入力、`builtins.fetchurl` など) で、
+本題の危険はここで塞がる。デーモン側は `macos-keychain.crt` のまま残る。ただ、デーモンが
+取得するのは署名を検証するバイナリキャッシュと、ハッシュ固定の fixed-output derivation
+だけなので、TLS が破られても改ざんは通らない。
+
+`nix.custom.conf` に一度書き足した `ssl-cert-file` の行は、効かないと分かった時点で
+削除した。`nix.custom.conf` はインストール時の状態に戻っている。
+
+#### Determinate Systems への報告
+
+2026-10-26 に `security@flakehub.com` (Determinate Systems のセキュリティ窓口) へ
+メールで非公開報告した。同じ内容の既存 issue は DeterminateSystems org と NixOS/nix には
+なかった。公開する場合の報告先は、公式の振り分けどおり `DeterminateSystems/nix-src`。
+
+報告した内容は、既定のバンドルで `builtins.fetchurl` が偽造証明書を受け入れること、
+macOS 標準の TLS は拒否すること、`ssl-cert-file` は Determinate の管理項目でシステム全体の
+回避策がないこと。flake 入力の取得経路は未検証として伝えた。返信があったら、ここに追記する。
+
+確認方法 (2026-10-26 に実施し、期待どおりになった):
+
+```sh
+nix config show ssl-cert-file   # ~/.local/share/nix-cacert/ca-bundle.crt
+# 失敗すること (verify result: unable to get local issuer certificate)
+nix eval --impure --refresh --expr 'builtins.fetchurl "https://dv-g3b-emudhra.we-have-a-problem.com/?x=1"'
+```
+
+対応前は、同じ `builtins.fetchurl` が両 URL とも成功していた。
+
+WSL2 の 2 台はシステムストア (`/etc/ssl/certs/ca-certificates.crt`) を指していて、
+apt の `ca-certificates` 更新で修正済みなので、この対応は不要。
 
 ## macOS 側で行ったこと (記録)
 

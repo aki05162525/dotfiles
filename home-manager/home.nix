@@ -17,6 +17,7 @@
     ./ai-skills
     ./herdr
     ./claude-code
+    ./cacert
   ];
 
   # username / homeDirectory は flake.nix で注入される
