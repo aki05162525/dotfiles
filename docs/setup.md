@@ -15,12 +15,13 @@ Home Manager (flake構成) を前提にする。WSL2 (Ubuntu) と macOS (Apple S
 
 Home Manager 適用後、以下は Nix 管理になる。個別インストールは不要。
 
-- CLI: `git`, `gh`, `jq`, `ripgrep`, `uv`, `trufflehog`
+- CLI: `git`, `gh`, `jq`, `ripgrep`, `uv`, `trufflehog`, `supabase`, `op`, `herdr`, `mpg123`
+- Linux 専用: `net-tools`, `wsl-open`
 - shell: `zsh`, `starship`, `fzf`, `direnv`
 - 開発補助: `mise`, `lefthook`, `shellcheck`, `stylua`, `nixfmt`
 - Git 設定: user 情報、credential helper、commit signing の共通設定
 
-手作業が必要なのは、Nix のインストール、外部 GUI アプリ、認証、PC 固有の秘密情報だけ。
+Nix のインストール、外部 GUI アプリ、認証、PC 固有の設定に加え、mise のランタイムと herdr の integration は以下の手順で導入する。
 
 ## 1. Nix をインストール
 
@@ -89,8 +90,9 @@ WSL は再起動して反映する。
 
 ### WezTerm
 
-WezTerm 本体は OS 側に入れる。設定は `wezterm/` を直接参照するため、編集後は WezTerm をリロード
-(Ctrl+Shift+R)するだけで反映される。
+WezTerm 本体は OS 側に入れる。
+設定の編集後、macOS は WezTerm のリロード(Ctrl+Shift+R)で反映される。
+WSL2 は `home-manager switch` で Windows 側のコピーを更新してからリロードする。
 
 ```powershell
 # WSL2: Windows 側で実行
@@ -135,14 +137,12 @@ ssh -T git@github.com
 `~/.gitconfig.local` に置く。
 
 WSL2 は 1Password アプリで SSH キーを開き、`...` → Configure Commit Signing →
-Configure for Windows Subsystem for Linux (WSL) → Copy Snippet で取得した値を書く。
+Configure for Windows Subsystem for Linux (WSL) → Copy Snippet で公開鍵を確認し、`signingkey` だけを書く。
+`gpg.ssh.program` は Home Manager が `op-ssh-sign-wsl.exe` に設定するので、スニペットの絶対パスは追加しない。
 
 ```ini
 [user]
   signingkey = ssh-ed25519 <公開鍵>
-
-[gpg "ssh"]
-  program = "/mnt/c/Users/<Windowsユーザー名>/AppData/Local/Microsoft/WindowsApps/op-ssh-sign-wsl.exe"
 ```
 
 macOS は 1Password の公開鍵を確認して、署名鍵だけを書く。`gpg.ssh.program` は Home Manager
@@ -174,11 +174,27 @@ GitHub.com → HTTPS → Y(git の credential helper として gh を使う) →
 mise install
 mise current
 
-corepack enable pnpm
 pnpm --version
 ```
 
+mise の `settings.node.corepack = true` で Node のインストール時に corepack を有効化するため、通常は手動の `corepack enable pnpm` は不要。
+既存の Node で pnpm が見つからない場合は `corepack enable pnpm` を実行する。
+
 詳しい役割分担は [ツール管理の役割分担](./tool-management.md) を参照。
+
+### herdr と Claude Code の integration
+
+Claude Code を公式インストーラで導入した後、herdr の integration を各マシンでインストールする。
+`settings.json` の SessionStart hook が参照する `~/.claude/hooks/herdr-agent-state.sh` は、この操作で配置される。
+
+```sh
+herdr integration install claude
+herdr integration status
+test -f ~/.claude/hooks/herdr-agent-state.sh
+```
+
+installer は共有設定の `~/.claude/settings.json` にも書き戻すため、実行後に `git -C ~/dotfiles diff -- home-manager/claude-code/settings.json` を確認する。
+マシン固有の絶対パスが書かれた場合は、既存の `$HOME` を使う記述に戻す。
 
 ### AI CLI の skills(サードパーティ)
 

@@ -1,5 +1,7 @@
 # dotfiles
 
+ドキュメントと既存のコードが食い違うときはコードの書き方に従い、見つけた食い違いを最後の返答ですべて挙げること。
+
 WSL2 (Ubuntu) と macOS (Apple Silicon) 両対応の Home Manager (flake構成) で管理する個人 dotfiles。
 
 ## ディレクトリ構成
@@ -10,9 +12,11 @@ dotfiles/
 ├─ flake.lock
 ├─ README.md
 ├─ AGENTS.md
-├─ memo.md                # 作業中のTODOメモ
-├─ lefthook.yml           # ローカル git hook(pre-commit / pre-push)
+├─ memo.md                # 作業中のTODOメモ(git 管理外、任意)
+├─ lefthook.yml           # ローカル git hook(pre-commit)
 ├─ stylua.toml            # Lua フォーマッタ設定(2スペース字下げ)
+├─ tests/
+│  └─ test_wezterm_activation.py # Windows 側に書き込まない activation の回帰テスト
 ├─ docs/
 │  ├─ setup.md            # 別マシンでのセットアップ手順
 │  ├─ tool-management.md  # Nix / mise / corepack 等のレイヤー構造
@@ -123,6 +127,8 @@ WezTerm は Windows 側アプリだが、設定実体はこのリポジトリの
 WSL2 の `weztermWslConfig` activation の挙動と安全策:
 
 - WSL ランタイム判定(`/proc/version`)でガードし、非 WSL の Linux と macOS では何もしない。
+- Windows ホームは取得と変換の成功を確認し、空文字や相対パス、存在しないディレクトリならコピーをスキップする。
+- dry-run ではコピー先の作成、更新、削除と bootstrap の生成を行わない。
 - `wezterm/*.lua`(`loader.lua` と `*.example` は除く)を `%USERPROFILE%\.config\wezterm` へコピーし、内容が同じファイルは書き込まない(`cmp` で冪等)。
 - `~/.wezterm.lua` は dotfiles 生成物(`WEZTERM_DOTFILES_CONFIG_DIR` 署名を含むファイル)のときだけ更新し、手書きの無関係なファイルは上書きしない。
 - activation は最小 PATH で走るため、`wslpath` / `cmd.exe` は絶対パスで呼ぶ。
@@ -134,7 +140,7 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 `~/.claude/settings.json` は `home-manager/claude-code/settings.json` を source of truth にして `mkOutOfStoreSymlink` で貼る(herdr / ai-skills と同じく、ツール自身が書き戻すため working copy を直接指す)。
 
 - Claude Code 自身(`/config`)や herdr の integration install がこのファイルへ書き戻すので、変更は repo の `git diff` として現れる。意図しない書き戻しに気付けるのが利点。
-- `attribution: false` でコミットの `Co-Authored-By` と PR の "Generated with Claude Code" を全リポジトリで止めている(旧 `includeCoAuthoredBy` は deprecated)。
+- `attribution.commit` と `attribution.pr` を空文字にしてコミットの `Co-Authored-By` と PR の "Generated with Claude Code" を全リポジトリで止めている(旧 `includeCoAuthoredBy` は deprecated)。
 - hook のコマンドはマシン間で共有するため絶対パスを書かず `$HOME` 経由にする。
 - `model` / `effortLevel` / `autoCompactWindow` / `modelSettings` は書かず、公式の既定値に任せる。未設定ならプランの推奨モデルに追従し、effort と自動圧縮の閾値もモデルごとに調整された値になる。固定するとモデル更新時に推奨から外れる。コンテキストは公式ベストプラクティスどおり `/clear`(タスクの切り替え時)と `/compact <指示>` で管理する。
 - `/effort` や `/autocompact` はセッション中の調整用。これらは `modelSettings` にモデル名単位で書き戻すが、共有設定には取り込まない(差分が出たら破棄する)。
@@ -175,7 +181,7 @@ nix fmt
 詳細は [docs/tool-management.md](docs/tool-management.md) 参照。要約:
 
 - **Nix (Home Manager)**: グローバルCLI(git, gh, mise, direnv, starship, jq, ripgrep など)
-- **WezTerm**: Windows側ターミナルアプリ。設定実体は `wezterm/` で管理し、`home-manager switch` の activation で各 OS へ反映する(WSL2 は Windows 側へコピー、macOS は symlink)
+- **WezTerm**: Windows / macOS のターミナルアプリ。設定実体は `wezterm/` で管理し、`home-manager switch` の activation で各 OS へ反映する(WSL2 は Windows 側へコピー、macOS は symlink)
 - **mise**: Node, Go など言語ランタイムのバージョン管理(プロジェクト別の `.tool-versions` 対応)
 - **corepack** (Node 同梱): pnpm, yarn のバージョン管理(`package.json` の `packageManager` フィールド)
 - **direnv**: プロジェクト別の環境変数(`.envrc`)

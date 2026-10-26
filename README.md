@@ -20,3 +20,7 @@ nix flake update
 # フォーマット
 nix fmt
 ```
+
+設定の変更後は `nix flake check` で実行中の OS 向け構成をビルド検証する。
+WSL のコピー処理は `python3 tests/test_wezterm_activation.py` で検証できる(Nix / Bash / Python 3 が必要)。
+テストは一時ディレクトリと Windows コマンドの代替を使うため、Windows 側の設定を変更しない。

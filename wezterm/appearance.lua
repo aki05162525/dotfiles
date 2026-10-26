@@ -15,7 +15,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
   local tab_bg = tab.is_active and ACT_BG or INACT_BG
   local tab_fg = tab.is_active and ACT_FG or INACT_FG
 
-  local title = tab.active_pane.title
+  local title = tab.tab_title ~= "" and tab.tab_title or tab.active_pane.title
   if #title > max_width - 4 then
     title = wezterm.truncate_right(title, max_width - 4)
   end

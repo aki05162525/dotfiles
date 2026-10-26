@@ -70,7 +70,7 @@
       # になり、設定が build 可能かを検証できない。activationPackage を checks に出すことで、
       # その system に対応する構成だけが通常どおり build 検査される
       # (Linux では Linux 側、macOS では macOS 側のみ。非対応 system は自動で omit される)。
-      # これで lefthook.yml の pre-push(`nix flake check`)の思想を変えずに実ビルド検査になる。
+      # `nix flake check` は更新後などに手動で実行する(lefthook の push hook にはしない)。
       checks = {
         x86_64-linux.home-manager = self.homeConfigurations."akihiro@wsl".activationPackage;
         aarch64-darwin.home-manager = self.homeConfigurations."takagi@mac".activationPackage;

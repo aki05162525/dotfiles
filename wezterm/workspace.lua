@@ -10,9 +10,21 @@ local function local_workspace_path()
 end
 
 local function load_local_workspaces()
-  local ok, workspaces = pcall(dofile, local_workspace_path())
+  local path = local_workspace_path()
+  local file, err, code = io.open(path, "r")
+  if not file then
+    -- ENOENT: PC ごとの設定は任意。それ以外の読み取り失敗は通知する。
+    if code ~= 2 then
+      wezterm.log_warn(err)
+    end
+    return {}
+  end
+  file:close()
+
+  local ok, workspaces = pcall(dofile, path)
 
   if not ok then
+    wezterm.log_warn("workspace.local.lua: " .. tostring(workspaces))
     return {}
   end
 

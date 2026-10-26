@@ -79,11 +79,13 @@
   # dotfiles リポジトリの lefthook git hook を自動注入する。
   # switch のたびに実行されるが lefthook install は冪等なので問題ない。
   home.activation.lefthookInstall = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    export PATH="${pkgs.git}/bin:$PATH"
-    dotfiles_dir="${config.home.homeDirectory}/dotfiles"
-    if [ -d "$dotfiles_dir/.git" ]; then
-      cd "$dotfiles_dir"
-      run ${pkgs.lefthook}/bin/lefthook install
-    fi
+    (
+      export PATH="${pkgs.git}/bin:$PATH"
+      dotfiles_dir="${config.home.homeDirectory}/dotfiles"
+      if [ -d "$dotfiles_dir/.git" ]; then
+        cd "$dotfiles_dir"
+        run ${pkgs.lefthook}/bin/lefthook install
+      fi
+    )
   '';
 }

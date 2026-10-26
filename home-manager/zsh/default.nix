@@ -34,9 +34,9 @@
 
       function hms() {
         if [[ "$(uname)" == "Darwin" ]]; then
-          home-manager switch --flake .#takagi@mac
+          home-manager switch --flake "$HOME/dotfiles#takagi@mac" "$@"
         else
-          home-manager switch --flake .#akihiro@wsl
+          home-manager switch --flake "$HOME/dotfiles#akihiro@wsl" "$@"
         fi
       }
     '';

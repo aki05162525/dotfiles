@@ -1,7 +1,7 @@
 { config, ... }:
 
 {
-  # Claude Code の user settings。`attribution: false` で
+  # Claude Code の user settings。`attribution.commit` と `attribution.pr` を空文字にして
   # Co-Authored-By / "Generated with Claude Code" を全リポジトリで止める
   # (旧 `includeCoAuthoredBy` は deprecated)。
   #
