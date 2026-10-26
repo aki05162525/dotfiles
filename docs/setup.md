@@ -51,16 +51,14 @@ nix run nixpkgs#git -- clone https://github.com/aki05162525/dotfiles.git ~/dotfi
 cd ~/dotfiles
 
 # WSL2
-nix run github:nix-community/home-manager -- switch --flake .#akihiro@wsl
+nix run --inputs-from . home-manager -- switch --flake .#akihiro@wsl
 
 # macOS
-nix run github:nix-community/home-manager -- switch --flake .#takagi@mac
+nix run --inputs-from . home-manager -- switch --flake .#takagi@mac
 ```
 
-> **初回ブートストラップの注意**: `nix run github:nix-community/home-manager` は flake.lock の
-> pinned バージョンを使わず、GitHub から最新 master を取得する。これは `home-manager` コマンドが
-> まだ PATH にないための回避策。2回目以降は `home-manager` コマンドが PATH に入るため、
-> flake.lock が参照されて再現性が保たれる。
+`--inputs-from .` により、このリポジトリの `flake.lock` に固定した版の Home Manager CLI で初回適用する。
+CLI 自体の依存パッケージには Home Manager 側の lock が使われるが、適用する構成は `--flake .#…` で指定したこのリポジトリの lock に従う。
 
 2回目以降は `home-manager` コマンドが PATH に入る。
 
