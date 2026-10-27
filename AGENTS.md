@@ -149,9 +149,14 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 
 ## AI CLI の信頼ディレクトリ
 
-Claude Code / Codex に信頼(trust)させるのは **`~/dotfiles`・`~/life` と `~/Developer/` 配下のリポジトリだけ**にする。`~/.claude` は第三者のプラグインや skill の置き場なので信頼しない(設定の変更は dotfiles 側で行う)。`~` や `~/Downloads` のような広いディレクトリは信頼しない。そこに置かれた第三者の `AGENTS.md` / `CLAUDE.md` を、確認なしで指示として実行させないためである。
+Claude Code / Codex に信頼(trust)させるのは **自分が管理するリポジトリだけ**にし、リポジトリ単位で付ける。リポジトリの置き場所(`~/personal` や `~/Developer` など)はマシンごとに違うので、ここでは特定のディレクトリ構成を前提にしない。信頼すると第三者の `AGENTS.md` / `CLAUDE.md` が指示として読まれるだけでなく、`.claude/settings.json` の hooks や `.mcp.json` の MCP サーバーも実行されうるため、範囲を絞る。
 
-- 信頼はリポジトリ単位で、初回起動時の確認ダイアログから付ける。範囲外のディレクトリでは承認しない。
+- 信頼してよい: `~/dotfiles`、`~/life`、自分が作成・管理するリポジトリ。
+- 信頼しない:
+  - `~`、`~/Downloads`、リポジトリをまとめて置く親ディレクトリ(例: `~/personal`)のような広いディレクトリ。
+  - `~/.claude`。第三者のプラグインや skill の置き場なので、設定の変更は dotfiles 側で行う。
+  - 他人のリポジトリの clone(OSS への contribution や教材など)。必要なら `AGENTS.md` / `CLAUDE.md`、`.claude/`、`.mcp.json`、`.codex/` を読んでから付ける。
+- 信頼は初回起動時の確認ダイアログから付ける。上の範囲外では承認しない。
 - 設定先は dotfiles 管理外のマシンローカルファイル。Codex は `~/.codex/config.toml` の `[projects."<path>"] trust_level = "trusted"`、Claude Code は `~/.claude.json` の `projects["<path>"].hasTrustDialogAccepted`。どちらもツール自身が書き込み、パスや MCP 設定がマシンごとに違い、秘密情報も混ざりうるため repo には入れない。
 - 範囲外のエントリが増えていないか、ときどき確認する:
   ```sh
