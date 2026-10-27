@@ -147,6 +147,18 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 - `~/.claude/settings.local.json` はユーザー全体の設定としては読まれない(`~` で起動したときのプロジェクトローカル扱い)。`enabledPlugins` など常に効かせたい設定は `settings.json` 側に書く。
 - `skills/` の共有については下の「AI CLI skills の管理」を参照。
 
+## AI CLI の信頼ディレクトリ
+
+Claude Code / Codex に信頼(trust)させるのは **`~/dotfiles`・`~/life` と `~/Developer/` 配下のリポジトリだけ**にする。`~/.claude` は第三者のプラグインや skill の置き場なので信頼しない(設定の変更は dotfiles 側で行う)。`~` や `~/Downloads` のような広いディレクトリは信頼しない。そこに置かれた第三者の `AGENTS.md` / `CLAUDE.md` を、確認なしで指示として実行させないためである。
+
+- 信頼はリポジトリ単位で、初回起動時の確認ダイアログから付ける。範囲外のディレクトリでは承認しない。
+- 設定先は dotfiles 管理外のマシンローカルファイル。Codex は `~/.codex/config.toml` の `[projects."<path>"] trust_level = "trusted"`、Claude Code は `~/.claude.json` の `projects["<path>"].hasTrustDialogAccepted`。どちらもツール自身が書き込み、パスや MCP 設定がマシンごとに違い、秘密情報も混ざりうるため repo には入れない。
+- 範囲外のエントリが増えていないか、ときどき確認する:
+  ```sh
+  grep '^\[projects\.' ~/.codex/config.toml
+  jq -r '.projects | to_entries[] | select(.value.hasTrustDialogAccepted) | .key' ~/.claude.json
+  ```
+
 ## AI CLI skills の管理
 
 Claude Code / Codex は同じ Agent Skills 形式(`<name>/SKILL.md`)を採用しているため、**リポジトリの `skills/` を source of truth** にして両ツールで共有する。`home-manager/ai-skills/default.nix` が `skills/*` を `~/.claude/skills/<name>` と `~/.codex/skills/<name>` へ **skill 単位で** symlink する(ディレクトリ丸ごとにしないのは、`~/.codex/skills/.system` との同居と、マシンローカル skill の直置きを許すため)。
