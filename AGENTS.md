@@ -1,7 +1,5 @@
 # dotfiles
 
-ドキュメントと既存のコードが食い違うときはコードの書き方に従い、見つけた食い違いを最後の返答ですべて挙げること。
-
 WSL2 (Ubuntu) と macOS (Apple Silicon) 両対応の Home Manager (flake構成) で管理する個人 dotfiles。
 
 ## ディレクトリ構成
@@ -21,12 +19,19 @@ dotfiles/
 │  ├─ setup.md            # 別マシンでのセットアップ手順
 │  ├─ tool-management.md  # Nix / mise / corepack 等のレイヤー構造
 │  └─ emudhra-ca-incident.md # eMudhra 中間CA 漏洩(2026-10)の対応手順
+├─ agents/                # 全プロジェクト共通の AI CLI 指示(実体)
+│  ├─ AGENTS.md           # 正本(~/.codex/AGENTS.md)
+│  └─ CLAUDE.md           # @~/.codex/AGENTS.md を import(~/.claude/CLAUDE.md)
 ├─ skills/                # Claude Code / Codex 共通の Agent Skills(実体)
 │  ├─ japanese-tech-writing/SKILL.md
 │  └─ cognitive-rhythm-writing/SKILL.md
 ├─ home-manager/
 │  ├─ home.nix            # エントリ。ツール別モジュールを imports
 │  ├─ ai-skills/default.nix  # skills/* を両ツールへ skill 単位で symlink
+│  ├─ ai-instructions/default.nix  # agents/ を ~/.codex/AGENTS.md と ~/.claude/CLAUDE.md へ symlink
+│  ├─ claude-code/        # ~/.claude/settings.json の実体
+│  ├─ herdr/
+│  ├─ cacert/
 │  ├─ direnv/default.nix
 │  ├─ fzf/default.nix
 │  ├─ git/default.nix
@@ -163,6 +168,14 @@ Claude Code / Codex に信頼(trust)させるのは **自分が管理するリ�
   grep '^\[projects\.' ~/.codex/config.toml
   jq -r '.projects | to_entries[] | select(.value.hasTrustDialogAccepted) | .key' ~/.claude.json
   ```
+
+## AI CLI 共通指示の管理
+
+全プロジェクトに効かせる指示は **`agents/AGENTS.md` を正本**にする。リポジトリ直下の `AGENTS.md`(このファイル)はこのリポジトリにしか効かない。
+
+- `home-manager/ai-instructions/default.nix` が `agents/AGENTS.md` を `~/.codex/AGENTS.md` へ、`agents/CLAUDE.md` を `~/.claude/CLAUDE.md` へ `mkOutOfStoreSymlink` で貼る。中身の編集は switch 不要で即反映される。
+- Claude Code は `AGENTS.md` を読まないため、`agents/CLAUDE.md` は `@~/.codex/AGENTS.md` で正本を import するだけにする(リポジトリの `CLAUDE.md` → `@AGENTS.md` と同じ形)。Claude 固有の指示が要るときは import 行の下に足す。
+- 毎セッションのコンテキストに入るので、言語やツールに依存しない作業姿勢だけを短く書く。技術スタック固有の話は各リポジトリの `AGENTS.md` に書く。秘密情報やマシン固有のパスは書かない。
 
 ## AI CLI skills の管理
 
