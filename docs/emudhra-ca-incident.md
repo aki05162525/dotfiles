@@ -15,12 +15,19 @@ WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を�
 
 | ホスト名 | 構成 | OS | 状態 |
 |---|---|---|---|
-| (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22)。2026-10-26 に Determinate Nix 3.24.1 へ更新し、Nix の TLS 拒否を確認。mise はこのマシンでの更新待ち (修正版は lock に反映済み) |
+| `2022-X0213` | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22)。2026-10-26 に Determinate Nix 3.24.1 へ更新し、Nix の TLS 拒否を確認。2026-10-29 に mise 2026.10.17 を適用し、要求バージョンに到達 |
 | `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 2026-10-29 に mise 2026.10.17 を適用し、要求バージョンに到達。curl の TLS 拒否も再確認 |
 | `aki-thinkpad` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22)。2026-10-26 に uv 更新と TLS 拒否を確認。mise はこのマシンでの更新待ち (修正版は lock に反映済み) |
 
 各マシンで作業したら、自分の `hostname` を記入して状態を更新する。
 行が足りなければ足す。
+
+### 2022-X0213 (macOS) の mise 更新 (2026-10-29)
+
+- `bec2c93` を pull し、`home-manager switch --flake .#takagi@mac` が成功した。
+- `~/.nix-profile/bin/mise --version` は `2026.10.17` を返した。
+- switch 前から開いていたシェルでは、mise のシェル関数が旧バイナリ (`2026.10.3`) のパスを保持したままだった。新しいシェルを開くか `exec zsh` で解消する。
+- TLS 拒否の再確認と mise 自身による接続テストは実施していない。
 
 ### minipc の mise 更新 (2026-10-29)
 
