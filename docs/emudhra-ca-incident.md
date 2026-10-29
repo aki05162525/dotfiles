@@ -15,12 +15,20 @@ WSL2 マシンは複数あり、同じ Home Manager 構成 (`akihiro@wsl`) を�
 
 | ホスト名 | 構成 | OS | 状態 |
 |---|---|---|---|
-| (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22)。2026-10-26 に Determinate Nix 3.24.1 へ更新し、Nix の TLS 拒否を確認。mise は未達 (下記) |
-| `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 初回対応済み (2026-10-22)。2026-10-26 に uv 更新と TLS 拒否を確認。mise は未達 (下記) |
-| `aki-thinkpad` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22)。2026-10-26 に uv 更新と TLS 拒否を確認。mise は未達 (下記) |
+| (macOS機) | `takagi@mac` | macOS / Apple Silicon | 完了 (2026-10-22)。2026-10-26 に Determinate Nix 3.24.1 へ更新し、Nix の TLS 拒否を確認。mise はこのマシンでの更新待ち (修正版は lock に反映済み) |
+| `minipc` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 2026-10-29 に mise 2026.10.17 を適用し、要求バージョンに到達。curl の TLS 拒否も再確認 |
+| `aki-thinkpad` | `akihiro@wsl` | WSL2 Ubuntu 24.04 | 完了 (2026-10-22)。2026-10-26 に uv 更新と TLS 拒否を確認。mise はこのマシンでの更新待ち (修正版は lock に反映済み) |
 
 各マシンで作業したら、自分の `hostname` を記入して状態を更新する。
 行が足りなければ足す。
+
+### minipc の mise 更新 (2026-10-29)
+
+- `flake.lock` の nixpkgs を `31ecbac`、home-manager を `095fef2` に更新した。
+- `home-manager switch --flake .#akihiro@wsl` が成功し、`mise --version` は `2026.10.17` を返した。
+- 公式リリースノートで、このバージョンに eMudhra CA の信頼削除が含まれることを確認した。
+- `/usr/bin/curl` は検証用の 2 URL をいずれも証明書エラー (終了コード 60) で拒否した。これはシステムの TLS 検証であり、mise 自身による接続テストは実施していない。
+- Linux の `nix flake check`、両 OS の構成評価 (`--all-systems --no-build`)、WezTerm activation の回帰テスト 8 件が成功した。macOS の実機適用は未実施。
 
 ### minipc の追加確認 (2026-10-26)
 
@@ -128,16 +136,19 @@ sudo update-ca-certificates --fresh
 `/etc/ca-certificates.conf` は `!` 始まりの行を「選択解除」として扱う。
 `sudo dpkg-reconfigure ca-certificates` でも対話的に選択できる。
 
-## Nix 管理で未達の項目
+## Nix 管理ツールの対応状況
 
-`uv` と `mise` は Nix 管理なので、nixpkgs が要求バージョンに追いつくのを待って
-`flake.lock` を更新する。
+`uv` と `mise` は Nix 管理なので、修正版を含む nixpkgs に `flake.lock` を更新して反映する。
+2026-10-29 に mise の修正版を含む nixos-unstable `31ecbac` へ更新した。
+他のマシンでは pull 後に各構成で `home-manager switch` し、`mise --version` が 2026.10.17 以上であることを確認する。
 
 | 項目 | 状態 |
 |---|---|
 | uv 0.13.4 | 済。nixos-unstable `3ec6363` (2026-10-23) に到達し、2026-10-26 に `flake.lock` を更新 |
-| mise 2026.10.17 | 未達。[nixpkgs#577218](https://github.com/NixOS/nixpkgs/pull/577218) は 10/24 に master へマージ済みで、nixos-unstable への到達待ち |
+| mise 2026.10.17 | 到達済み。[nixpkgs#577218](https://github.com/NixOS/nixpkgs/pull/577218) を含む nixos-unstable `31ecbac` へ 2026-10-29 に lock を更新。マシン別の適用状況は上表を参照 |
 | nixpkgs の `cacert` | 3.131.1 (3.126 から更新)。`emSign ECC Root CA - G3` / `- C3` / `Root CA - C1` が外れ、`emSign Root CA - G1` だけ残る。`AAA Certificate Services` (ラベルは `Comodo AAA Services root`) は残るが、TRUSTED CERTIFICATE 形式でサーバー認証の信頼を外されている |
+
+channel 到達の確認方法 (2026-10-29 に `behind` を確認):
 
 mise が channel に入ったかは、マージコミットと channel の比較で確認できる
 (`behind` か `identical` なら到達済み)。
@@ -146,7 +157,7 @@ mise が channel に入ったかは、マージコミットと channel の比較
 gh api repos/NixOS/nixpkgs/compare/nixos-unstable...7acaf38 --jq .status
 ```
 
-到達したら、`flake.lock` を更新して各マシンで反映する。
+今後も依存を更新するときは、次のコマンドで `flake.lock` を更新して各マシンで反映する。
 
 ```sh
 cd ~/dotfiles && nix flake update nixpkgs home-manager && home-manager switch --flake .#<構成>
@@ -244,7 +255,7 @@ apt の `ca-certificates` 更新で修正済みなので、この対応は不要
 - 検証: 2つの URL とも `curl: (60) unable to get local issuer certificate` で失敗した (期待どおり)。
   ここでの curl は `/usr/bin/curl`。
 - この WSL では `NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt` (修正済みのシステムストア)
-  を指していて、「Nix 管理で未達の項目」に書いた `nss-cacert` は使われていなかった。
+  を指していて、「Nix 管理ツールの対応状況」に書いた `nss-cacert` は使われていなかった。
 - 未達: `mise 2026.6.11` / `uv 0.11.25` (Nix 管理。nixpkgs が追いつくのを待つ方針どおり手を付けていない)。
 - Windows 側 (Windows Update、ブラウザの更新と再起動) は手作業で実施した。
 
@@ -284,11 +295,13 @@ apt の `ca-certificates` 更新で修正済みなので、この対応は不要
 - 検証: 2つの URL とも `curl: (60) unable to get local issuer certificate` で失敗した
   (期待どおり)。ここでの curl は `/usr/bin/curl` (OpenSSL 3.0.13)。
 - `NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt` を指していて、`minipc` と同じく
-  「Nix 管理で未達の項目」の `nss-cacert` は使われていなかった。
+  「Nix 管理ツールの対応状況」の `nss-cacert` は使われていなかった。
 - 未達: `mise 2026.6.11` / `uv 0.11.25` (Nix 管理。nixpkgs 待ちの方針どおり手を付けていない)。
 - Windows 側 (Windows Update、ブラウザの更新と再起動) は手作業で実施した。
 
 ## 参考
+
+- [mise 2026.10.17 リリースノート (eMudhra CA の信頼削除)](https://github.com/jdx/mise/releases/tag/v2026.10.17)
 
 - [発見者による一次情報・パッチ版一覧](https://emudhra.we-have-a-problem.com/)
 - [Ubuntu: eMudhra CA compromise fixes available](https://ubuntu.com/blog/emudhra-ca-compromise-fixes-available)
