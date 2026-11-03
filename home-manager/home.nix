@@ -57,6 +57,7 @@
     [
       nixfmt
       gh
+      awscli2
       uv
       trufflehog
       jq
