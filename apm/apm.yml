@@ -14,6 +14,18 @@ dependencies:
       ref: 29d67ccb05e370b5958d72920a9cd1aa829dee80
       skills:
         - yomiyasu
+    - git: mizchi/explainer
+      ref: ccdd7bacfb47451e38506d837af8a629504960b2
+      skills:
+        - explainer
+        - explainer-book
+        - first-reader
+        - d2-diagram
+        - d2-slides
+    - git: DreambigOu/ELI5
+      ref: a766623b062331fdde53467001379b4ddf3acc2f
+      skills:
+        - eli5
   mcp: []
 includes: auto
 scripts: {}

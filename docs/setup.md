@@ -213,7 +213,7 @@ installer は共有設定の `~/.claude/settings.json` にも書き戻すため�
 
 全プロジェクトで使うスキルは APM で管理する。
 宣言は `apm/apm.yml`、解決済みバージョンと配置記録は `apm/apm.lock.yaml` に保存する。
-現在は yomiyasu 2.5.0 をコミット `29d67ccb05e370b5958d72920a9cd1aa829dee80` に固定し、Claude Code と Codex 向けに導入している。
+Claude Code と Codex 向けに `yomiyasu`、explainer 系の5スキル、`eli5` を導入する。取得元と固定コミットは `apm/apm.yml` を参照。
 自作スキルと外部スキルの配布用依存セットは [skills リポジトリ](https://github.com/aki05162525/skills) で管理する。
 用途・導入方法・検証状況は同リポジトリの README を参照する。
 
@@ -228,12 +228,12 @@ cp ~/dotfiles/apm/apm.yml ~/dotfiles/apm/apm.lock.yaml ~/.apm/
 apm install -g --frozen
 ```
 
-APM は `~/.claude/skills/yomiyasu/` と `~/.agents/skills/yomiyasu/` に配置する。
+APM は `~/.claude/skills/<名前>/` と `~/.agents/skills/<名前>/` に配置する。
 `~/.apm/apm_modules/` は APM のキャッシュであり、dotfiles にはコピーしない。
 Home Manager はスキルのリンクを生成しない。
 
 依存の選定と追加方法は skills リポジトリを参照し、グローバル環境に導入した後は宣言と lockfile を dotfiles へ保存する。
-現在のグローバル設定は `nanaism/yomiyasu` を直接参照している。
+グローバル設定は選定済みの upstream を直接参照し、`skills:` で必要なスキルだけを選ぶ。
 
 更新は対象リビジョンの変更を確認してから行い、再現用の設定を保存する。
 
@@ -250,6 +250,8 @@ APM 自体は `uv tool install --upgrade apm-cli==<更新先の版>` で更新�
 
 使うときは「yomiyasu でこの文章を推敲して」と明示する。
 付属の検査には Python を使い、任意のフックは今回設定していない。
+explainer 系と eli5 は名前を指定して使う。指定されたスキルの手順で必要な関連スキルも利用できる。起動条件は `agents/AGENTS.md` で定める。
+explainer は `explainer-book`、`first-reader`、`d2-diagram`、`d2-slides` とまとめて導入する。資料作成・検証には Node 24 以上と用途別の依存を別途用意する。
 実行中のエージェントには設定変更前のスキル一覧が残る場合があるため、切り替え後は新しいセッションで確認する。
 
 ## 動作確認

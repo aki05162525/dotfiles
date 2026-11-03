@@ -182,12 +182,13 @@ Claude Code / Codex の信頼(trust)は、自分が管理するリポジトリ�
 実行用の manifest と lockfile は `~/.apm/` にコピーする。APM が更新するため、読み取り専用の Nix store へのリンクにしない。
 設定の復元と更新後の保存手順は [docs/setup.md](docs/setup.md) を参照。
 
-- 現在は `nanaism/yomiyasu` の `yomiyasu` を Claude Code と Codex 向けに導入する。
-- スキルの配置先は `~/.claude/skills/yomiyasu/` と `~/.agents/skills/yomiyasu/`。本体とキャッシュは dotfiles にコミットしない。
+- Claude Code と Codex 向けに `yomiyasu`、explainer 系の5スキル、`eli5` を導入する。取得元と固定コミットは `apm/apm.yml` を参照。
+- スキルの配置先は `~/.claude/skills/<名前>/` と `~/.agents/skills/<名前>/`。本体とキャッシュは dotfiles にコミットしない。
 - Home Manager はスキルのリンクを作らない。
 - 自作スキルと外部スキルの配布用依存セットは [aki05162525/skills](https://github.com/aki05162525/skills) で管理する。用途と導入方法は同リポジトリの README を参照し、dotfiles に重複して記録しない。
 - プロジェクト固有の依存は各プロジェクトの `apm.yml` と `apm.lock.yaml` に置く。
 - yomiyasu は明示して依頼するときに使う。全プロジェクトへの配置を、全応答での自動適用とは扱わない。
+- explainer 系と eli5 は名前を指定して使う。指定されたスキルの手順で必要な関連スキルも利用できる。起動条件は共通指示 `agents/AGENTS.md` で定める。
 
 ## フォーマット
 
