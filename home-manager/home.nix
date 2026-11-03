@@ -26,27 +26,20 @@
   # 変更する場合はリリースノートを参照すること。
   home.stateVersion = "25.11";
 
-  # 自己更新する AI CLI 等を置く ~/.local/bin を PATH に通す。
-  # hm-session-vars.sh 経由で全シェルから一貫して読まれる。
-  #
-  # mise の shims も同様にここへ通す。`programs.mise.enableZshIntegration` の
-  # `mise activate zsh` は対話シェルの .zshrc でしか読まれず、husky 等が
-  # git hook を非対話シェルで実行すると mise 管理下の node/pnpm が PATH に
-  # 乗らず "pnpm: command not found" で失敗する。shims 経由なら非対話シェルでも動く。
+  # ~/.local/bin の自己更新 CLI と mise の shims を全シェルの PATH に追加する。
+  # mise activate は対話シェル専用。shims がないと非対話の git hook で
+  # node/pnpm が見つからないため、hm-session-vars.sh 経由で設定する。
   home.sessionPath = [
     "$HOME/.local/bin"
     "$HOME/.local/share/mise/shims"
   ];
 
   home.sessionVariables = {
-    # 未設定だと go が $HOME/go を GOPATH として使い、ホーム直下に go/
-    # (モジュールキャッシュ等)が散らかる。XDG データディレクトリ配下へ逃がす。
+    # 既定の ~/go ではなく XDG データディレクトリにキャッシュ等を置く。
     GOPATH = "$HOME/.local/share/go";
   }
   // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-    # WSL2: BROWSER を設定すると xdg-open がこれを最優先で使うため、
-    # Linux 側の chromium 等へフォールバックせず常に Windows 既定ブラウザが開く
-    # (wsl-open は下の home.packages が提供。wslu は discontinued のため使わない)。
+    # xdg-open から Windows 既定ブラウザを開く。wsl-open は home.packages で導入する。
     BROWSER = "wsl-open";
   };
 
@@ -77,8 +70,7 @@
 
   programs.home-manager.enable = true;
 
-  # dotfiles リポジトリの lefthook git hook を自動注入する。
-  # switch のたびに実行されるが lefthook install は冪等なので問題ない。
+  # switch 時に dotfiles の git hook を登録する。lefthook install は冪等。
   home.activation.lefthookInstall = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     (
       export PATH="${pkgs.git}/bin:$PATH"

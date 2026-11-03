@@ -1,15 +1,7 @@
-# ローカル git hook 設定(lefthook)。
-# CI は導入せず、フォーマット・静的解析はここに集約する。
-# 初回だけ `lefthook install` で .git/hooks に注入する(docs/setup.md 参照)。
-#
-# - pre-commit: 差分ファイル対象の速い検査(nixfmt / shellcheck / stylua)
-#
-# 設定が実際にビルド可能かは `nix flake check` を必要なときに手動で実行して確認する
-# (flake update 直後などキャッシュが効かない場合に重く、push のたびに強制するには不向きなため)。
-#
-# 秘密情報スキャン(trufflehog)は常設せず、必要なときだけ手動で
-#   trufflehog filesystem --no-update .
-# を実行する方針。
+# 差分のフォーマット・静的解析を pre-commit で実行する。CI は使わない。
+# hook は home-manager switch で登録する(home-manager/home.nix)。
+# ビルド検証は重いため、更新後など必要なときに nix flake check を実行する。
+# 秘密情報の検査も必要なときに trufflehog filesystem --no-update . を実行する。
 
 pre-commit:
   parallel: true

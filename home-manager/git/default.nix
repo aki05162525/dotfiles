@@ -22,10 +22,8 @@
       init.defaultBranch = "main";
       gpg = {
         format = "ssh";
-        # コミット署名は 1Password の SSH キーで行う。署名バイナリは OS で異なる。
-        # WSL2: Windows 側 op-ssh-sign-wsl.exe(WindowsApps が WSL の PATH に乗るため
-        #       ユーザー名を含む絶対パスにせず素の名前で解決させる)。
-        # macOS: 1Password.app 同梱の op-ssh-sign。
+        # 1Password で署名する。WSL2 は WindowsApps の PATH から実行ファイルを探し、
+        # ユーザー名を含む絶対パスを避ける。macOS はアプリ同梱のバイナリを使う。
         ssh.program =
           if pkgs.stdenv.hostPlatform.isDarwin then
             "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"

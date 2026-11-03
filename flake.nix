@@ -65,22 +65,16 @@
         };
       };
 
-      # `nix flake check` で Home Manager 構成が実際に build できるかを保証する。
-      # homeConfigurations は標準出力ではないため flake check では「評価のみ・build skip」
-      # になり、設定が build 可能かを検証できない。activationPackage を checks に出すことで、
-      # その system に対応する構成だけが通常どおり build 検査される
-      # (Linux では Linux 側、macOS では macOS 側のみ。非対応 system は自動で omit される)。
-      # `nix flake check` は更新後などに手動で実行する(lefthook の push hook にはしない)。
+      # homeConfigurations だけでは flake check がビルドしないため、
+      # activationPackage を checks に登録する。実行中の OS 向け構成を検証する。
+      # 重い検証なので push hook にはせず、更新後などに手動で実行する。
       checks = {
         x86_64-linux.home-manager = self.homeConfigurations."akihiro@wsl".activationPackage;
         aarch64-darwin.home-manager = self.homeConfigurations."takagi@mac".activationPackage;
       };
 
-      # `nix fmt` で使うフォーマッタ。各マシンの system 分を定義する。
-      # nixfmt-tree は公式フォーマッタ(nixfmt)を treefmt でラップしたもの。
-      # 素の nixfmt を直接 formatter に指定すると `nix fmt`(無引数)がファイル一覧を
-      # 渡さず stdin 待ちでハングするため、リポジトリ全体を再帰フォーマットできる
-      # nixfmt-tree を使う。
+      # nixfmt-tree でリポジトリを再帰整形する。
+      # nixfmt を直接指定すると、無引数の nix fmt が stdin 待ちになる。
       formatter = {
         x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt-tree;
         aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.nixfmt-tree;

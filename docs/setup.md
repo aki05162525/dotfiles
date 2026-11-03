@@ -1,9 +1,6 @@
 # 新しいマシンでのセットアップ手順
 
-Home Manager (flake構成) を前提にする。WSL2 (Ubuntu) と macOS (Apple Silicon) は
-`flake.nix` の `homeConfigurations` に定義済み。
-
-使う構成名は WSL2 が `akihiro@wsl`、macOS が `takagi@mac`。
+Home Manager (flake構成) を使う。`flake.nix` の `homeConfigurations` に WSL2 (Ubuntu) 用の `akihiro@wsl` と macOS (Apple Silicon) 用の `takagi@mac` を定義している。
 
 ## 前提
 
@@ -13,7 +10,7 @@ Home Manager (flake構成) を前提にする。WSL2 (Ubuntu) と macOS (Apple S
 
 ## Nix が管理するもの
 
-Home Manager 適用後、以下は Nix 管理になる。個別インストールは不要。
+次のツールと設定は Home Manager で導入する。
 
 - CLI: `git`, `gh`, `jq`, `ripgrep`, `uv`, `trufflehog`, `supabase`, `op`, `herdr`, `mpg123`
 - Linux 専用: `net-tools`, `wsl-open`
@@ -57,7 +54,7 @@ nix run --inputs-from . home-manager -- switch --flake .#akihiro@wsl
 nix run --inputs-from . home-manager -- switch --flake .#takagi@mac
 ```
 
-`--inputs-from .` により、このリポジトリの `flake.lock` に固定した版の Home Manager CLI で初回適用する。
+`--inputs-from .` により、このリポジトリの `flake.lock` に固定したバージョンの Home Manager CLI で初回適用する。
 CLI 自体の依存パッケージには Home Manager 側の lock が使われるが、適用する構成は `--flake .#…` で指定したこのリポジトリの lock に従う。
 
 2回目以降は `home-manager` コマンドが PATH に入る。
@@ -102,14 +99,12 @@ winget install wez.wezterm
 brew install --cask wezterm
 ```
 
-**macOS** は `home-manager switch` で `~/.config/wezterm` に symlink が作られるので追加作業は不要。
-
-**WSL2** も `home-manager switch` の activation(`weztermWslConfig`)が、`wezterm/*.lua` を Windows 側 `%USERPROFILE%\.config\wezterm` へコピーし、エントリ `~/.wezterm.lua` を生成する。WezTerm 本体を入れたら、もう一度 `home-manager switch` を実行すれば反映される(手動スクリプトは不要)。以降 `wezterm/` を編集したら `switch` でコピーが更新される。
+macOS は `home-manager switch` で `~/.config/wezterm` に symlink を作る。
+WSL2 は activation(`weztermWslConfig`)で `wezterm/*.lua` を Windows 側 `%USERPROFILE%\.config\wezterm` へコピーし、`~/.wezterm.lua` を生成する。WezTerm 本体の導入後に、もう一度 `home-manager switch` を実行する。
 
 PC ごとの workspace 一覧は git 管理しない `wezterm/workspace.local.lua` に書く(これもコピー対象)。
 
-WSL ディストリビューション名が `Ubuntu` ではない場合は、Windows 側で確認して
-`wezterm/platform.lua` の domain 名を合わせる。
+`wezterm/platform.lua` は `WSL:Ubuntu` を優先し、なければ最初の WSL domain を使う。別の domain を優先する場合は、Windows 側でディストリビューション名を確認し、同ファイルの `preferred` を変更する。
 
 ```powershell
 wsl -l -v
@@ -197,7 +192,7 @@ t3 --version
 
 CLI 本体は公式インストーラで管理し、更新には `t3 update` を使う。
 Desktop が WSL 内に配置する `~/.t3/wsl-runtime/<hash>/t3` はアプリ管理の実行ファイルなので、dotfiles から特定のハッシュを PATH や symlink に固定しない。
-CLI の導入と T3 Connect の認証は別の操作であり、この手順ではサーバーの起動や接続設定の変更は行わない。
+この手順は CLI の導入のみを扱う。T3 Connect の認証・サーバー起動・接続設定は含まない。
 接続の調査には [公式のトラブルシューティング](https://github.com/pingdotgg/t3code/blob/main/docs/user/t3-connect-troubleshooting.md)を参照する。
 
 ### herdr と Claude Code の integration
@@ -217,7 +212,7 @@ installer は共有設定の `~/.claude/settings.json` にも書き戻すため�
 ### 全プロジェクト共通の Agent Skills
 
 全プロジェクトで使うスキルは APM で管理する。
-宣言は `apm/apm.yml`、解決済みの版と配置記録は `apm/apm.lock.yaml` が正本。
+宣言は `apm/apm.yml`、解決済みバージョンと配置記録は `apm/apm.lock.yaml` に保存する。
 現在は yomiyasu 2.5.0 をコミット `29d67ccb05e370b5958d72920a9cd1aa829dee80` に固定し、Claude Code と Codex 向けに導入している。
 自作スキルと外部スキルの配布用依存セットは [skills リポジトリ](https://github.com/aki05162525/skills) で管理する。
 用途・導入方法・検証状況は同リポジトリの README を参照する。
@@ -249,7 +244,7 @@ git -C ~/dotfiles diff -- apm/
 ```
 
 完全 SHA の pin も `apm update` によって書き換わる場合があるため、提示される更新計画を確認する。
-APM 自体の更新には `uv tool install --upgrade apm-cli==<更新先の版>` を使う。版を変更したら上の初期導入手順も更新する。
+APM 自体は `uv tool install --upgrade apm-cli==<更新先の版>` で更新し、初期導入手順のバージョンも変更する。
 削除は `apm uninstall -g nanaism/yomiyasu` を使い、同じコピー手順で宣言と lockfile を保存する。
 変更した両ファイルをコミットし、スキルの配置先を直接編集しない。
 
@@ -265,7 +260,7 @@ APM 自体の更新には `uv tool install --upgrade apm-cli==<更新先の版>`
 command -v git gh direnv starship zsh uv trufflehog jq
 ```
 
-全て `~/.nix-profile/bin/` 以下のパスが返れば OK。
+全て `~/.nix-profile/bin/` 以下のパスになっていることを確認する。
 
 ### ログインシェル
 
@@ -321,7 +316,7 @@ ls .git/hooks/pre-commit
 
 ### WezTerm 設定
 
-**macOS**:
+macOS ではリンク先を確認する。
 
 ```sh
 ls -la ~/.config/wezterm
@@ -329,7 +324,7 @@ ls -la ~/.config/wezterm
 
 `~/dotfiles/wezterm` への symlink になっていれば OK。
 
-**WSL2**: Windows 側 `~/.wezterm.lua` が生成され、先頭に `WEZTERM_DOTFILES_CONFIG_DIR` が書かれていれば OK。
+WSL2: Windows 側 `~/.wezterm.lua` が生成され、先頭に `WEZTERM_DOTFILES_CONFIG_DIR` が書かれていれば OK。
 
 ```sh
 win_home="$(wslpath -u "$(cd /mnt/c && cmd.exe /c 'echo %USERPROFILE%' | tr -d '\r')")"
@@ -337,7 +332,7 @@ head -n1 "$win_home/.wezterm.lua"
 ls "$win_home/.config/wezterm"   # wezterm/ の lua がコピーされていれば OK
 ```
 
-生成されない場合はリポジトリが `~/dotfiles` 以外に置かれている可能性があるので確認する。
+生成されない場合は、リポジトリが `~/dotfiles` にあるか確認する。
 
 ## トラブルシューティング
 

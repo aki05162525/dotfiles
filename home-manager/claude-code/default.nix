@@ -1,18 +1,10 @@
 { config, ... }:
 
 {
-  # Claude Code の user settings。`attribution.commit` と `attribution.pr` を空文字にして
-  # Co-Authored-By / "Generated with Claude Code" を全リポジトリで止める
-  # (旧 `includeCoAuthoredBy` は deprecated)。
-  #
-  # Claude Code 自身(/config)や herdr の integration install が
-  # このファイルに書き戻すため、読み取り専用な nix store への symlink ではなく
-  # working copy を直接指す mkOutOfStoreSymlink にする(herdr と同じ理由)。
-  # 書き戻しは repo の git diff として見えるので、意図しない変更に気付ける。
-  #
-  # ~/.claude/settings.local.json はユーザー全体の設定としては読まれない
-  # (~ で起動したときのプロジェクトローカル扱い)ので、
-  # プラグイン等の常に効かせたい設定はこのファイルに書くこと。
+  # attribution.commit / attribution.pr を空にし、コミットと PR の生成元表記を止める。
+  # /config や herdr が書き戻すため working copy にリンクし、git diff で確認する。
+  # ~/.claude/settings.local.json はユーザー全体には適用されないため、
+  # 常に使うプラグイン等は settings.json に設定する。
   home.file.".claude/settings.json".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/home-manager/claude-code/settings.json";
 }

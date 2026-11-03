@@ -1,6 +1,6 @@
 # ツール管理の役割分担
 
-各レイヤーが下の層を管理する階層構造になっている。
+Nix は共通 CLI、mise は言語ランタイム、corepack は pnpm / yarn を管理する。
 
 ## 全体像
 
@@ -19,54 +19,42 @@ Nix (Home Manager)
 
 | レイヤー | 役割 | 何を管理するか | 設定場所 |
 |---|---|---|---|
-| **Nix (Home Manager)** | グローバルCLIツールの導入と設定の宣言的管理 | mise本体, git, gh, direnv, starship など | `~/dotfiles/home-manager/` |
-| **mise** | 言語ランタイムのバージョン管理 | Node, Go, Python, Terraform など | グローバル: `~/.config/mise/config.toml` (Nix管理) / プロジェクト: `.tool-versions` |
-| **corepack** | Node エコシステムのパッケージマネージャ管理 | pnpm, yarn のバージョン | プロジェクトの `package.json` の `packageManager` フィールド |
-| **direnv** | プロジェクト別の環境変数 | DATABASE_URL, API_KEY など | プロジェクトの `.envrc` |
-| **各パッケージマネージャ** (pnpm, npm, cargo, go等) | プロジェクト依存ライブラリ | npm パッケージ, crate など | プロジェクトの `package.json`, `Cargo.toml` など |
+| Nix (Home Manager) | グローバルCLIツールの導入と設定の宣言的管理 | mise本体, git, gh, direnv, starship など | `~/dotfiles/home-manager/` |
+| mise | 言語ランタイムのバージョン管理 | Node, Go, Python, Terraform など | グローバル: `~/.config/mise/config.toml` (Nix管理) / プロジェクト: `.tool-versions` |
+| corepack | pnpm / yarn のバージョン管理 | pnpm, yarn のバージョン | プロジェクトの `package.json` の `packageManager` フィールド |
+| direnv | プロジェクト別の環境変数 | DATABASE_URL, API_KEY など | プロジェクトの `.envrc` |
+| 各パッケージマネージャ (pnpm, npm, cargo, go等) | プロジェクト依存ライブラリ | npm パッケージ, crate など | プロジェクトの `package.json`, `Cargo.toml` など |
 
 ## なぜこの構造か
 
-- **責務の分離**: 各ツールが得意分野に専念する
-- **下位互換性**: 例えば pnpm を Nix で管理すると、プロジェクトごとに異なるバージョンの pnpm を使えなくなる。corepack に任せれば自動で切り替わる
-- **再現性**: 上位レイヤーほど宣言的(Nix)、下位レイヤーほどプロジェクトローカル(`.tool-versions`, `package.json`)で、それぞれ最適なスコープで管理される
+共通 CLI は Nix で揃え、プロジェクトごとに異なるランタイムとパッケージマネージャのバージョンは `.tool-versions` と `package.json` で指定する。
 
 ## よくある疑問
 
-### Q. pnpm は Nix で入れるべき?
+### pnpm
 
-**A. 入れない。corepack に任せる。**
+corepack に任せる。`package.json` の `packageManager` でバージョンを揃え、lock file の不要な差分を防ぐ。Nix で固定すると、この自動切替を妨げる。
 
-理由: pnpm はプロジェクトごとにバージョンを揃えたい(同じバージョンで `pnpm install` しないと lock file の差分が出る)。corepack は `package.json` の `packageManager` フィールドを読んで自動切替してくれる。Nix で固定バージョンを入れると、この自動切替を妨げる。
+### Node
 
-### Q. Node のバージョンを mise でなく Nix で管理するべき?
+mise で管理し、プロジェクトごとの `.tool-versions` を git で共有する。Nix の devShell でも切り替えられるが、この構成では `.tool-versions` を使う。
 
-**A. mise が向いている。**
+### グローバル CLI
 
-理由: プロジェクトごとに `.tool-versions` で「このプロジェクトは Node 18」「このプロジェクトは Node 22」のように切り替えたいケースが多い。Nix の devShell でも実現できるが書き方が独特で、チームで共有するときに摩擦がある。mise なら `.tool-versions` を git に入れるだけで済む。
+jq / fzf / ripgrep などは Nix で管理する。プロジェクト別の切替は不要で、`flake.lock` と `home-manager switch` で各マシンに同じバージョンを導入できる。
 
-### Q. グローバルツール(jq, fzf, ripgrep等)は mise と Nix どっち?
+### AI CLI
 
-**A. Nix。**
+claude / codex / gemini は公式インストーラで管理する。Nix store は読み取り専用で自己更新が `EROFS` で失敗するため、Nix には入れない。
 
-理由: これらは「全マシンで同じバージョンが入っていればよい」もので、プロジェクト別の切替は不要。Nix で管理するとflake.lockで完全再現できる。mise だと各マシンで `mise install` が必要だが、Nix なら `home-manager switch` 1発。
+### T3 Code CLI
 
-### Q. AI CLI (claude, codex, gemini) は何で管理?
-
-**A. 公式インストーラ(npm or curl)のまま。Nix で管理しない。**
-
-理由: 自己更新する。Nix store は read-only なので auto-update が `EROFS` で失敗する。リリース頻度も高く nixpkgs が追いつかない。
-
-### Q. T3 Code CLI (t3) は何で管理?
-
-**A. 公式インストーラで `~/.local/bin/t3` に導入し、`t3 update` で更新する。**
+公式インストーラで `~/.local/bin/t3` に導入し、`t3 update` で更新する。
 
 Home Manager は `~/.local/bin` の PATH 設定を管理する。
 自己更新できるよう CLI 本体は Nix store に置かず、Desktop が配置する WSL runtime のハッシュ付きパスも固定しない。
 導入手順は [セットアップの T3 Code CLI](./setup.md#t3-code-cli) を参照。
 
-### Q. Rust (cargo, rustc) は?
+### Rust
 
-**A. rustup のまま。**
-
-理由: rustup は Rust 公式のツールチェーン管理機構で、`stable`/`nightly` の切替や `rust-analyzer` 連携が rustup ベースで設計されている。Nix で代替できるが、エコシステムの恩恵を失う。
+cargo / rustc は Rust 公式の rustup で管理する。`stable` / `nightly` の切替や `rust-analyzer` との連携も rustup に任せる。

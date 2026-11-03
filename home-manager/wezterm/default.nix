@@ -6,26 +6,16 @@
 }:
 
 {
-  # macOS: ~/.config/wezterm → ~/dotfiles/wezterm をディレクトリごと symlink する
-  #         (symlink なので常に repo と同期)。
-  # WSL2 は下の weztermWslConfig activation で Windows 側へコピーする。
+  # macOS はリポジトリへリンクし、WSL2 は activation で Windows 側へコピーする。
   home.file.".config/wezterm" = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
     source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/wezterm";
   };
 
-  # WSL2 専用: WezTerm は Windows 側アプリで wsl.localhost 越しの直接参照は遅い・たまに
-  # 不安定なため、switch のたびに repo の wezterm/ を Windows 側 %USERPROFILE%/.config/wezterm
-  # へミラーコピーし、エントリ ~/.wezterm.lua をそこへ向ける。これで「古いコピーが置き去り」に
-  # なるドリフトを防ぐ(repo が常に source of truth)。
-  # macOS は上の home.file で symlink 済み。非 WSL の Linux では何もしない。
-  # 旧 scripts/install-wezterm-config.sh を home-manager switch に統合したもの。
-  #
-  # 安全策:
-  #   - WSL ランタイム判定でガード(/proc/version)
-  #   - Windows ホームの取得と変換に成功し、絶対パスの既存ディレクトリの場合だけコピー
-  #   - dry-run ではコピー先と一時ファイルに書き込まない
-  #   - 内容が同じファイルは書き込まない(cmp で冪等)
-  #   - ~/.wezterm.lua は dotfiles 生成物(WEZTERM_DOTFILES_CONFIG_DIR 署名)以外は上書きしない
+  # wsl.localhost 越しの参照は遅く不安定なことがあるため、switch 時に
+  # wezterm/ を %USERPROFILE%/.config/wezterm へミラーし、~/.wezterm.lua を生成する。
+  # 非 WSL の Linux では実行しない。
+  # Windows ホームが有効な絶対パスの場合だけコピーし、同じ内容は書き込まない。
+  # dry-run では一時ファイルも作らず、手書きの ~/.wezterm.lua は上書きしない。
   home.activation.weztermWslConfig = lib.mkIf pkgs.stdenv.hostPlatform.isLinux (
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       (
@@ -64,12 +54,8 @@
                   fi
                 fi
               done
-              # repo から消えた/リネームされた lua を Windows 側からも掃除(ドリフト防止)。
-              # コピー対象(src の *.lua から loader と .example を除いた集合)に無い dest 側の
-              # lua を削除する。これで rename / 削除が反映され、旧コピー方式の名残
-              # (.config/wezterm/loader.lua)もここで消える。
-              # workspace.local.lua(PC ごと・git 管理外だが src には存在しコピー対象)は
-              # src に在る限り消されない。
+              # コピー元にない lua と loader.lua をコピー先から削除する。
+              # workspace.local.lua はコピー元に存在する限り残す。
               for f in "$dest"/*.lua; do
                 [ -e "$f" ] || continue # glob 無マッチ対策
                 base="$(basename "$f")"

@@ -10,13 +10,10 @@
       tools = {
         node = "24";
         go = "1.26";
-        # macOS 同梱の Python は 3.9 系で、pip を要求バージョン(>=3.10 必須)へ
-        # 上げられない。Python も mise 管理に寄せてシステム Python を使わない。
+        # macOS 同梱の Python 3.9 では pip の要求(>=3.10)を満たせないため mise で管理する。
         python = "3.14";
       };
-      # pnpm / yarn は corepack に任せる(docs/tool-management.md)。
-      # corepack enable は Node のインストール単位で効くため、Node を上げるたびに
-      # pnpm シムが消える。インストール時に mise が自動で有効化するようにする。
+      # Node 更新後も pnpm / yarn を使えるよう、インストールごとに corepack を有効化する。
       settings.node.corepack = true;
     };
   };
