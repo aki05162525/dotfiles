@@ -14,7 +14,6 @@
     ./git
     ./zsh
     ./wezterm
-    ./ai-skills
     ./ai-instructions
     ./herdr
     ./claude-code

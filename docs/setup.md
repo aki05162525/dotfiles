@@ -214,28 +214,48 @@ test -f ~/.claude/hooks/herdr-agent-state.sh
 installer は共有設定の `~/.claude/settings.json` にも書き戻すため、実行後に `git -C ~/dotfiles diff -- home-manager/claude-code/settings.json` を確認する。
 マシン固有の絶対パスが書かれた場合は、既存の `$HOME` を使う記述に戻す。
 
-### AI CLI の skills(サードパーティ)
+### 全プロジェクト共通の Agent Skills
 
-自作 skill は `skills/` を home-manager が symlink するので追加作業は不要。
-サードパーティ配布の skill は dotfiles に取り込まず、各マシンで公式 installer から入れる
-(実体は `~/.agents/skills/` に置かれ、Claude Code へは symlink、Codex 等は直接読む)。
+全プロジェクトで使うスキルは APM で管理する。
+宣言は `apm/apm.yml`、解決済みの版と配置記録は `apm/apm.lock.yaml` が正本。
+現在は yomiyasu 2.5.0 をコミット `29d67ccb05e370b5958d72920a9cd1aa829dee80` に固定し、Claude Code と Codex 向けに導入している。
+自作スキルと外部スキルの配布用依存セットは [skills リポジトリ](https://github.com/aki05162525/skills) で管理する。
+用途・導入方法・検証状況は同リポジトリの README を参照する。
 
-現在使っているもの。いずれも**ホームディレクトリで実行する**(リポジトリ内で実行すると
-プロジェクトレベルに入ってしまう)。
+新しいマシンでは、uv が利用可能になった後に以下を実行する。
+`~/.apm/` に既存の設定がある場合は、コピーする前に差分を確認して必要な依存を統合する。
+ホームディレクトリを信頼済みプロジェクトにする必要はない。
 
 ```sh
-cd ~
-
-# modern-web-guidance: フロントエンド実装の最新プラクティス
-npx modern-web-guidance@latest install
-
-# grill-me: 計画・設計を質問攻めで検証する(skills.sh 経由)
-npx skills add https://github.com/mattpocock/skills --skill grill-me
+uv tool install apm-cli==0.35.0
+mkdir -p ~/.apm
+cp ~/dotfiles/apm/apm.yml ~/dotfiles/apm/apm.lock.yaml ~/.apm/
+apm install -g --frozen
 ```
 
-更新は modern-web-guidance が `npx modern-web-guidance@latest update`、
-skills.sh 経由のものが `npx skills update`。
-テレメトリを止めたい場合は `DISABLE_TELEMETRY=1` を環境変数に設定する。
+APM は `~/.claude/skills/yomiyasu/` と `~/.agents/skills/yomiyasu/` に配置する。
+`~/.apm/apm_modules/` は APM のキャッシュであり、dotfiles にはコピーしない。
+Home Manager はスキルのリンクを生成しない。
+
+依存の選定と追加方法は skills リポジトリを参照し、グローバル環境に導入した後は宣言と lockfile を dotfiles へ保存する。
+現在のグローバル設定は `nanaism/yomiyasu` を直接参照している。
+
+更新は対象リビジョンの変更を確認してから行い、再現用の設定を保存する。
+
+```sh
+apm update -g nanaism/yomiyasu
+cp ~/.apm/apm.yml ~/.apm/apm.lock.yaml ~/dotfiles/apm/
+git -C ~/dotfiles diff -- apm/
+```
+
+完全 SHA の pin も `apm update` によって書き換わる場合があるため、提示される更新計画を確認する。
+APM 自体の更新には `uv tool install --upgrade apm-cli==<更新先の版>` を使う。版を変更したら上の初期導入手順も更新する。
+削除は `apm uninstall -g nanaism/yomiyasu` を使い、同じコピー手順で宣言と lockfile を保存する。
+変更した両ファイルをコミットし、スキルの配置先を直接編集しない。
+
+使うときは「yomiyasu でこの文章を推敲して」と明示する。
+付属の検査には Python を使い、任意のフックは今回設定していない。
+実行中のエージェントには設定変更前のスキル一覧が残る場合があるため、切り替え後は新しいセッションで確認する。
 
 ## 動作確認
 

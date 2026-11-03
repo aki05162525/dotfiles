@@ -7,7 +7,7 @@
   #
   # Claude Code 自身(/config)や herdr の integration install が
   # このファイルに書き戻すため、読み取り専用な nix store への symlink ではなく
-  # working copy を直接指す mkOutOfStoreSymlink にする(herdr / ai-skills と同じ理由)。
+  # working copy を直接指す mkOutOfStoreSymlink にする(herdr と同じ理由)。
   # 書き戻しは repo の git diff として見えるので、意図しない変更に気付ける。
   #
   # ~/.claude/settings.local.json はユーザー全体の設定としては読まれない

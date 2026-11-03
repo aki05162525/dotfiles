@@ -22,12 +22,11 @@ dotfiles/
 ├─ agents/                # 全プロジェクト共通の AI CLI 指示(実体)
 │  ├─ AGENTS.md           # 正本(~/.codex/AGENTS.md)
 │  └─ CLAUDE.md           # @~/.codex/AGENTS.md を import(~/.claude/CLAUDE.md)
-├─ skills/                # Claude Code / Codex 共通の Agent Skills(実体)
-│  ├─ japanese-tech-writing/SKILL.md
-│  └─ cognitive-rhythm-writing/SKILL.md
+├─ apm/                   # 全プロジェクト共通スキルの導入設定
+│  ├─ apm.yml
+│  └─ apm.lock.yaml
 ├─ home-manager/
 │  ├─ home.nix            # エントリ。ツール別モジュールを imports
-│  ├─ ai-skills/default.nix  # skills/* を両ツールへ skill 単位で symlink
 │  ├─ ai-instructions/default.nix  # agents/ を ~/.codex/AGENTS.md と ~/.claude/CLAUDE.md へ symlink
 │  ├─ claude-code/        # ~/.claude/settings.json の実体
 │  ├─ herdr/
@@ -142,7 +141,7 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 
 ## Claude Code の設定
 
-`~/.claude/settings.json` は `home-manager/claude-code/settings.json` を source of truth にして `mkOutOfStoreSymlink` で貼る(herdr / ai-skills と同じく、ツール自身が書き戻すため working copy を直接指す)。
+`~/.claude/settings.json` は `home-manager/claude-code/settings.json` を source of truth にして `mkOutOfStoreSymlink` で貼る(herdr と同じく、ツール自身が書き戻すため working copy を直接指す)。
 
 - Claude Code 自身(`/config`)や herdr の integration install がこのファイルへ書き戻すので、変更は repo の `git diff` として現れる。意図しない書き戻しに気付けるのが利点。
 - `attribution.commit` と `attribution.pr` を空文字にしてコミットの `Co-Authored-By` と PR の "Generated with Claude Code" を全リポジトリで止めている(旧 `includeCoAuthoredBy` は deprecated)。
@@ -150,7 +149,7 @@ WSL2 の `weztermWslConfig` activation の挙動と安全策:
 - `model` / `effortLevel` / `autoCompactWindow` / `modelSettings` は書かず、公式の既定値に任せる。未設定ならプランの推奨モデルに追従し、effort と自動圧縮の閾値もモデルごとに調整された値になる。固定するとモデル更新時に推奨から外れる。コンテキストは公式ベストプラクティスどおり `/clear`(タスクの切り替え時)と `/compact <指示>` で管理する。
 - `/effort` や `/autocompact` はセッション中の調整用。これらは `modelSettings` にモデル名単位で書き戻すが、共有設定には取り込まない(差分が出たら破棄する)。
 - `~/.claude/settings.local.json` はユーザー全体の設定としては読まれない(`~` で起動したときのプロジェクトローカル扱い)。`enabledPlugins` など常に効かせたい設定は `settings.json` 側に書く。
-- `skills/` の共有については下の「AI CLI skills の管理」を参照。
+- 全プロジェクト共通スキルについては下の「AI CLI skills の管理」を参照。
 
 ## AI CLI の信頼ディレクトリ
 
@@ -179,22 +178,16 @@ Claude Code / Codex に信頼(trust)させるのは **自分が管理するリ�
 
 ## AI CLI skills の管理
 
-Claude Code / Codex は同じ Agent Skills 形式(`<name>/SKILL.md`)を採用しているため、**リポジトリの `skills/` を source of truth** にして両ツールで共有する。`home-manager/ai-skills/default.nix` が `skills/*` を `~/.claude/skills/<name>` と `~/.codex/skills/<name>` へ **skill 単位で** symlink する(ディレクトリ丸ごとにしないのは、`~/.codex/skills/.system` との同居と、マシンローカル skill の直置きを許すため)。
+全プロジェクト共通のスキルは APM で導入し、宣言と lockfile を `apm/apm.yml` と `apm/apm.lock.yaml` で管理する。
+実行時のファイルは `~/.apm/` にコピーする。APM が更新するため、読み取り専用の Nix store へのリンクにしない。
+設定の復元と更新後の保存手順は [docs/setup.md](docs/setup.md) を参照。
 
-- symlink は `mkOutOfStoreSymlink` で working copy を直接指すので、**既存 SKILL.md の編集は switch 不要で即反映**される。
-- **skill の追加・削除時のみ** `git add` + `home-manager switch` が必要。
-- WSL2 でも両 CLI は WSL 内で動くため、wezterm と違いコピー方式は不要(両 OS とも symlink)。
-- ツール固有 skill が必要になったら `skills/claude/` 等に分ける拡張余地あり(現状は全共有)。
-- **サードパーティ配布の skill は dotfiles に取り込まない**(source of truth が upstream のため)。各マシンで公式 installer から入れ、一覧は [docs/setup.md](docs/setup.md) に記録する。
-
-なお `.gitignore` の nix build 成果物パターンは `/result` `/result-*`(ルート限定)。`result-*` のままだと `skills/result-*` のような配下のパスに誤マッチする。
-
-### カスタムスキル一覧
-
-`skills/` 配下、`~/.claude/skills/<name>` と `~/.codex/skills/<name>` から利用できる。
-
-- **japanese-tech-writing** — 日本語の技術文書・書籍原稿の文章規範。整形(一文一行、引用ブロック、脚注、コラム記法)、段落と論証の構成(パラグラフライティング)、論証の厳密さ、読み手の負荷の管理、視点と語り、演出の抑制、LLM っぽい空句の禁止、冗長の排除を定める。日本語で技術書の章・草稿・記事・解説文を書く/推敲するときに使う。
-- **cognitive-rhythm-writing** — 説明的な文章に緩急を設計するための規範。緩急を認知モードの切替(観察→逡巡→断定→再観察)と未回収の緊張の管理として扱う。読み物として読ませたい章・記事・解説文を生成するとき、または「密度はあるが平坦」な文章を診断・修正するときに使う。`japanese-tech-writing` と併用する前提(スキル内で参照している)。
+- 現在は `nanaism/yomiyasu` の `yomiyasu` を Claude Code と Codex 向けに導入する。
+- スキルの配置先は `~/.claude/skills/yomiyasu/` と `~/.agents/skills/yomiyasu/`。本体とキャッシュは dotfiles にコミットしない。
+- Home Manager はスキルのリンクを作らない。
+- 自作スキルの正本と外部スキルの配布用依存セットは [aki05162525/skills](https://github.com/aki05162525/skills) で管理する。用途と導入方法は同リポジトリの README を参照し、dotfiles に重複して記録しない。
+- プロジェクト固有の依存は各プロジェクトの `apm.yml` と `apm.lock.yaml` に置く。
+- yomiyasu は明示して依頼するときに使う。全プロジェクトへの配置を、全応答での自動適用とは扱わない。
 
 ## フォーマット
 

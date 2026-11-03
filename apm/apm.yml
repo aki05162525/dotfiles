@@ -1,0 +1,19 @@
+name: akihiro
+version: 1.0.0
+description: APM project for akihiro
+author: aki05162525
+# Which agent platforms to deploy to.
+# Resolution order: --target flag > this field > auto-detect from filesystem.
+# Accepted values: agent-skills, antigravity, claude, codex, copilot, cursor, gemini, grok-bot, grok-build, hermes, kiro, opencode, vscode, windsurf
+targets:
+  - claude
+  - codex
+dependencies:
+  apm:
+    - git: nanaism/yomiyasu
+      ref: 29d67ccb05e370b5958d72920a9cd1aa829dee80
+      skills:
+        - yomiyasu
+  mcp: []
+includes: auto
+scripts: {}
