@@ -32,6 +32,13 @@
       }
     }
   },
+  "env": {
+    "GIT_CONFIG_COUNT": "2",
+    "GIT_CONFIG_KEY_0": "gpg.ssh.program",
+    "GIT_CONFIG_VALUE_0": "ssh-keygen",
+    "GIT_CONFIG_KEY_1": "user.signingkey",
+    "GIT_CONFIG_VALUE_1": "~/.ssh/agent_signing.pub"
+  },
   "language": "Japanese",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
