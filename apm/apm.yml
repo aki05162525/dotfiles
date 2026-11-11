@@ -11,7 +11,7 @@ targets:
 dependencies:
   apm:
     - git: nanaism/yomiyasu
-      ref: 29d67ccb05e370b5958d72920a9cd1aa829dee80
+      ref: b9a69a3791dd7d3c063ed963bc4a408e515f6288
       skills:
         - yomiyasu
     - git: mizchi/explainer
