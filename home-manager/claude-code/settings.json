@@ -1,5 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "GIT_CONFIG_COUNT": "2",
+    "GIT_CONFIG_KEY_0": "gpg.ssh.program",
+    "GIT_CONFIG_VALUE_0": "ssh-keygen",
+    "GIT_CONFIG_KEY_1": "user.signingkey",
+    "GIT_CONFIG_VALUE_1": "~/.ssh/agent_signing.pub"
+  },
   "attribution": {
     "commit": "",
     "pr": "",
@@ -22,7 +29,8 @@
   "enabledPlugins": {
     "hono-skill@hono-skill": true,
     "vercel@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "cloudflare@cloudflare": true
   },
   "extraKnownMarketplaces": {
     "hono-skill": {
@@ -30,18 +38,17 @@
         "source": "github",
         "repo": "yusukebe/hono-skill"
       }
+    },
+    "cloudflare": {
+      "source": {
+        "source": "github",
+        "repo": "cloudflare/skills"
+      }
     }
-  },
-  "env": {
-    "GIT_CONFIG_COUNT": "2",
-    "GIT_CONFIG_KEY_0": "gpg.ssh.program",
-    "GIT_CONFIG_VALUE_0": "ssh-keygen",
-    "GIT_CONFIG_KEY_1": "user.signingkey",
-    "GIT_CONFIG_VALUE_1": "~/.ssh/agent_signing.pub"
   },
   "language": "Japanese",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
-  "agentPushNotifEnabled": true,
-  "switchModelsOnFlag": false
+  "switchModelsOnFlag": false,
+  "agentPushNotifEnabled": true
 }
