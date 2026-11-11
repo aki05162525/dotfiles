@@ -10,22 +10,9 @@ targets:
   - codex
 dependencies:
   apm:
-    - git: nanaism/yomiyasu
-      ref: b9a69a3791dd7d3c063ed963bc4a408e515f6288
-      skills:
-        - yomiyasu
-    - git: mizchi/explainer
-      ref: ccdd7bacfb47451e38506d837af8a629504960b2
-      skills:
-        - explainer
-        - explainer-book
-        - first-reader
-        - d2-diagram
-        - d2-slides
-    - git: DreambigOu/ELI5
-      ref: a766623b062331fdde53467001379b4ddf3acc2f
-      skills:
-        - eli5
+    - aki05162525/skills/packages/yomiyasu
+    - aki05162525/skills/packages/explainer
+    - aki05162525/skills/packages/eli5
   mcp: []
 includes: auto
 scripts: {}

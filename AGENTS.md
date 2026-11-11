@@ -23,8 +23,7 @@ dotfiles/
 │  ├─ AGENTS.md           # 正本(~/.codex/AGENTS.md)
 │  └─ CLAUDE.md           # @~/.codex/AGENTS.md を import(~/.claude/CLAUDE.md)
 ├─ apm/                   # 全プロジェクト共通スキルの導入設定
-│  ├─ apm.yml
-│  └─ apm.lock.yaml
+│  └─ apm.yml
 ├─ home-manager/
 │  ├─ home.nix            # エントリ。ツール別モジュールを imports
 │  ├─ ai-instructions/default.nix  # agents/ を ~/.codex/AGENTS.md と ~/.claude/CLAUDE.md へ symlink
@@ -178,11 +177,13 @@ Claude Code / Codex の信頼(trust)は、自分が管理するリポジトリ�
 
 ## AI CLI skills の管理
 
-全プロジェクト共通のスキルは APM で導入し、宣言と lockfile を `apm/apm.yml` と `apm/apm.lock.yaml` で管理する。
-実行用の manifest と lockfile は `~/.apm/` にコピーする。APM が更新するため、読み取り専用の Nix store へのリンクにしない。
-設定の復元と更新後の保存手順は [docs/setup.md](docs/setup.md) を参照。
+全プロジェクト共通のスキルは APM で導入し、宣言を `apm/apm.yml` で管理する。
+`apm/apm.yml` は [aki05162525/skills](https://github.com/aki05162525/skills) のパッケージを ref なし(`main`)で参照する。upstream の固定コミットは skills リポジトリ側で管理するため、スキルの更新で dotfiles は変わらない。
+lockfile(`~/.apm/apm.lock.yaml`)はマシンごとに APM が書き換えるので、dotfiles にコミットしない。
+実行用の manifest は `~/.apm/` にコピーする。APM が更新するため、読み取り専用の Nix store へのリンクにしない。
+導入と更新の手順は [docs/setup.md](docs/setup.md) を参照。
 
-- Claude Code と Codex 向けに `yomiyasu`、explainer 系の5スキル、`eli5` を導入する。取得元と固定コミットは `apm/apm.yml` を参照。
+- Claude Code と Codex 向けに `yomiyasu`、explainer 系の5スキル、`eli5` を導入する。取得元と固定コミットは skills リポジトリの `packages/<名前>/apm.yml` を参照。
 - スキルの配置先は `~/.claude/skills/<名前>/` と `~/.agents/skills/<名前>/`。本体とキャッシュは dotfiles にコミットしない。
 - Home Manager はスキルのリンクを作らない。
 - 自作スキルと外部スキルの配布用依存セットは [aki05162525/skills](https://github.com/aki05162525/skills) で管理する。用途と導入方法は同リポジトリの README を参照し、dotfiles に重複して記録しない。

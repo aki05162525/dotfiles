@@ -234,10 +234,11 @@ installer は共有設定の `~/.claude/settings.json` にも書き戻すため�
 ### 全プロジェクト共通の Agent Skills
 
 全プロジェクトで使うスキルは APM で管理する。
-宣言は `apm/apm.yml`、解決済みバージョンと配置記録は `apm/apm.lock.yaml` に保存する。
-Claude Code と Codex 向けに `yomiyasu`、explainer 系の5スキル、`eli5` を導入する。取得元と固定コミットは `apm/apm.yml` を参照。
-自作スキルと外部スキルの配布用依存セットは [skills リポジトリ](https://github.com/aki05162525/skills) で管理する。
-用途・導入方法・検証状況は同リポジトリの README を参照する。
+宣言は `apm/apm.yml` に置き、[skills リポジトリ](https://github.com/aki05162525/skills) のパッケージ(`aki05162525/skills/packages/<名前>`)を ref なしで参照する。
+Claude Code と Codex 向けに `yomiyasu`、explainer 系の5スキル、`eli5` を導入する。
+upstream の固定コミットと導入するスキルは skills リポジトリの `packages/<名前>/apm.yml` で管理する。
+用途・追加方法・更新手順は同リポジトリの README を参照する。
+lockfile はマシンごとに `~/.apm/apm.lock.yaml` へ生成され、dotfiles にはコミットしない。
 
 新しいマシンでは、uv が利用可能になった後に以下を実行する。
 `~/.apm/` に既存の設定がある場合は、コピーする前に差分を確認して必要な依存を統合する。
@@ -246,29 +247,28 @@ Claude Code と Codex 向けに `yomiyasu`、explainer 系の5スキル、`eli5`
 ```sh
 uv tool install apm-cli==0.35.0
 mkdir -p ~/.apm
-cp ~/dotfiles/apm/apm.yml ~/dotfiles/apm/apm.lock.yaml ~/.apm/
-apm install -g --frozen
+cp ~/dotfiles/apm/apm.yml ~/.apm/
+apm install -g
 ```
 
+その時点の skills リポジトリの `main` が導入される。
 APM は `~/.claude/skills/<名前>/` と `~/.agents/skills/<名前>/` に配置する。
 `~/.apm/apm_modules/` は APM のキャッシュであり、dotfiles にはコピーしない。
 Home Manager はスキルのリンクを生成しない。
+`apm install` の「dependencies unpinned」の警告は、`main` を参照する方針どおりなので無視してよい。
 
-依存の選定と追加方法は skills リポジトリを参照し、グローバル環境に導入した後は宣言と lockfile を dotfiles へ保存する。
-グローバル設定は選定済みの upstream を直接参照し、`skills:` で必要なスキルだけを選ぶ。
-
-更新は対象リビジョンの変更を確認してから行い、再現用の設定を保存する。
+スキルを更新するときは、skills リポジトリで固定コミットを上げて push したあと、各マシンで以下を実行する。
+dotfiles の変更は不要。
 
 ```sh
-apm update -g nanaism/yomiyasu
-cp ~/.apm/apm.yml ~/.apm/apm.lock.yaml ~/dotfiles/apm/
-git -C ~/dotfiles diff -- apm/
+apm update -g --dry-run   # 更新計画の確認
+apm update -g --yes
 ```
 
-完全 SHA の pin も `apm update` によって書き換わる場合があるため、提示される更新計画を確認する。
+パッケージを追加・削除するときだけ `apm/apm.yml` を変更する。
+`~/.apm/apm.yml` で `apm install -g` か `apm uninstall -g aki05162525/skills/packages/<名前>` を実行し、`cp ~/.apm/apm.yml ~/dotfiles/apm/` で保存してコミットする。
 APM 自体は `uv tool install --upgrade apm-cli==<更新先の版>` で更新し、初期導入手順のバージョンも変更する。
-削除は `apm uninstall -g nanaism/yomiyasu` を使い、同じコピー手順で宣言と lockfile を保存する。
-変更した両ファイルをコミットし、スキルの配置先を直接編集しない。
+スキルの配置先は直接編集しない。
 
 使うときは「yomiyasu でこの文章を推敲して」と明示する。
 付属の検査には Python を使い、任意のフックは今回設定していない。
