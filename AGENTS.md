@@ -30,6 +30,7 @@ dotfiles/
 │  ├─ claude-code/        # ~/.claude/settings.json の実体
 │  ├─ herdr/
 │  ├─ cacert/
+│  ├─ zed/                # ~/.config/zed/settings.json の実体(working copy へ symlink)
 │  ├─ direnv/default.nix
 │  ├─ fzf/default.nix
 │  ├─ git/default.nix

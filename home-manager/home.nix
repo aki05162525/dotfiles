@@ -17,6 +17,7 @@
     ./ai-instructions
     ./herdr
     ./claude-code
+    ./zed
     ./cacert
   ];
 
