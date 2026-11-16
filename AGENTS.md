@@ -2,6 +2,8 @@
 
 WSL2 (Ubuntu) と macOS (Apple Silicon) 両対応の Home Manager (flake構成) で管理する個人 dotfiles。
 
+使っているマシンは mini PC、ThinkPad、Mac の3台。mini PC はリモート操作だけで使い、ThinkPad と Mac は手元で操作する。
+
 ## ディレクトリ構成
 
 ```
@@ -28,9 +30,9 @@ dotfiles/
 │  ├─ home.nix            # エントリ。ツール別モジュールを imports
 │  ├─ ai-instructions/default.nix  # agents/ を ~/.codex/AGENTS.md と ~/.claude/CLAUDE.md へ symlink
 │  ├─ claude-code/        # ~/.claude/settings.json の実体
+│  ├─ zed/                # ~/.config/zed/settings.json の実体(working copy へ symlink)
 │  ├─ herdr/
 │  ├─ cacert/
-│  ├─ zed/                # ~/.config/zed/settings.json の実体(working copy へ symlink)
 │  ├─ direnv/default.nix
 │  ├─ fzf/default.nix
 │  ├─ git/default.nix
@@ -227,7 +229,7 @@ SSH キーは 1Password で管理し、ディスク上に秘密鍵(`~/.ssh/id_*`
   - WSL2: `op-ssh-sign-wsl.exe`(WindowsApps が WSL の PATH に乗るため、ユーザー名を含む絶対パスにせず素の名前で解決させる)
   - macOS: `/Applications/1Password.app/Contents/MacOS/op-ssh-sign`
 - `user.signingkey`(= 公開鍵)はマシン固有なので nix には書かず、`~/.gitconfig.local`(`programs.git.includes` で取り込み・git 管理外)に置く。
-- 例外として、AI エージェントの commit 署名にはマシンごとの署名専用鍵 `~/.ssh/agent_signing` をディスクに置く。リモート操作中のエージェントは 1Password の承認ダイアログを通せないため。GitHub には Signing Key としてだけ登録し、push には使えないようにする。Claude Code は `settings.json` の `env`、Codex は `~/.codex/config.toml` の `shell_environment_policy.set` で `GIT_CONFIG_*` を渡し、`gpg.ssh.program` と `user.signingkey` を上書きする。手で行う commit は従来どおり 1Password で署名する。漏洩時は GitHub から鍵を削除する。手順は [docs/setup.md](docs/setup.md#ai-エージェントの-commit-signing)。
+- 例外として、リモート操作する mini PC だけは署名専用鍵 `~/.ssh/agent_signing` をディスクに置き、`~/.gitconfig.local` で `user.signingkey` と `gpg.ssh.program = ssh-keygen` をこの鍵に向ける。リモートからは 1Password の承認ダイアログを押せないため。AI エージェントも手で行う commit もこの鍵で署名する。GitHub には Signing Key としてだけ登録し、push には使えないようにする。手元で操作する ThinkPad と Mac は鍵を作らず、AI エージェントも 1Password で署名する。漏洩時は GitHub から鍵を削除する。手順は [docs/setup.md](docs/setup.md#リモート操作するマシンの-commit-signing)。
 
 新しいマシンでは次の順で設定する。
 

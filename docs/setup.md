@@ -150,9 +150,10 @@ SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock 
   signingkey = ssh-ed25519 <公開鍵>
 ```
 
-### AI エージェントの commit signing
+### リモート操作するマシンの commit signing
 
-AI エージェントは 1Password の承認ダイアログを通せないため、マシンごとに署名専用の鍵を作る。
+リモート操作するマシン(mini PC)では 1Password の承認ダイアログを押せないため、署名専用の鍵を作る。
+手元で操作するマシン(ThinkPad、Mac)では作らない。
 GitHub には Signing Key としてだけ登録し、Authentication Key には登録しない。
 
 ```sh
@@ -160,16 +161,13 @@ ssh-keygen -t ed25519 -N '' -C "agent-signing@$(hostname)" -f ~/.ssh/agent_signi
 gh ssh-key add ~/.ssh/agent_signing.pub --type signing --title "agent-signing@$(hostname)"
 ```
 
-Claude Code は `home-manager/claude-code/settings.json` の `env` でこの鍵を使う。
-Codex の `~/.codex/config.toml` は dotfiles 管理外なので、マシンごとに次を追記する。
+`~/.gitconfig.local` の署名設定をこの鍵に向ける。AI エージェントも手で行う commit もこの鍵で署名する。
 
-```toml
-[shell_environment_policy.set]
-GIT_CONFIG_COUNT = "2"
-GIT_CONFIG_KEY_0 = "gpg.ssh.program"
-GIT_CONFIG_VALUE_0 = "ssh-keygen"
-GIT_CONFIG_KEY_1 = "user.signingkey"
-GIT_CONFIG_VALUE_1 = "~/.ssh/agent_signing.pub"
+```ini
+[user]
+  signingkey = ~/.ssh/agent_signing.pub
+[gpg "ssh"]
+  program = ssh-keygen
 ```
 
 ### gh
