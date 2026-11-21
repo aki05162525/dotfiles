@@ -60,6 +60,9 @@ AI に聞いた内容は実際に試してから書く。
 | `Ctrl+Shift+F` | プロジェクト内の文字列を検索する(`projectSearch.toggle`) |
 | `Ctrl+W` | 右側のパネルを閉じる(`rightPanel.close`) |
 | `Ctrl+K` | コマンドパレットを開く(`commandPalette.toggle`) |
+| `F6` / `Shift+F6`(HHKB: `Fn+6`) | フォーカスを次 / 前の領域へ移す。開いたファイルをスクロールするときは、これでファイル側へ移してから `PgDn` / `PgUp` |
+| `Ctrl+Shift+P` | 今のスレッドをピン留めする(`thread.pin`) |
+| `Ctrl+1`〜`Ctrl+9` | サイドバーの N 番目のスレッドへ移る(`thread.jump.N`) |
 
 Mac では `Ctrl` の代わりに `Cmd`(設定ファイル上の `mod`)。
 
