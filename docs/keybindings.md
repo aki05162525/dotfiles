@@ -56,6 +56,12 @@ AI に聞いた内容は実際に試してから書く。
 | キー | 動作 |
 |---|---|
 | `PgDn` / `PgUp`(HHKB: `Fn+;` / `Fn+'`) | 会話を上下にスクロールする。入力欄にフォーカスがあっても効く |
+| `Ctrl+P` | ファイル名で検索して開く(`filePicker.toggle`) |
+| `Ctrl+Shift+F` | プロジェクト内の文字列を検索する(`projectSearch.toggle`) |
+| `Ctrl+W` | 右側のパネルを閉じる(`rightPanel.close`) |
+| `Ctrl+K` | コマンドパレットを開く(`commandPalette.toggle`) |
+
+Mac では `Ctrl` の代わりに `Cmd`(設定ファイル上の `mod`)。
 
 ## Windows: アプリ間の移動(フォーカスの切り替え)
 
