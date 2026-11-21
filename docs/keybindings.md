@@ -62,6 +62,9 @@ AI に聞いた内容は実際に試してから書く。
 | `Ctrl+Shift+F` | プロジェクト内の文字列を検索する(`projectSearch.toggle`) |
 | `Ctrl+W` | 右側のパネルを閉じる(`rightPanel.close`) |
 | `Ctrl+K` | コマンドパレットを開く(`commandPalette.toggle`) |
+| `Ctrl+U` | 使用量(usage)の画面を開く(`usage.open`)。開いたあとは `C` でコスト、`T` でトークン、`L` で上限を切り替える |
+| `Ctrl+Shift+M` | モデルを切り替える(`modelPicker.toggle`) |
+| `Ctrl+Shift+E` | エフォートを切り替える(`composer.effort`)。相談用スレッドは Sonnet 5.5 + `medium` が目安 |
 | `F6` / `Shift+F6`(HHKB: `Fn+6`) | フォーカスを次 / 前の領域へ移す。開いたファイルをスクロールするときは、これでファイル側へ移してから `PgDn` / `PgUp` |
 | `Ctrl+Shift+P` | 今のスレッドをピン留めする(`thread.pin`) |
 | `Ctrl+1`〜`Ctrl+9` | サイドバーの N 番目のスレッドへ移る(`thread.jump.N`) |
