@@ -81,6 +81,7 @@ Mac では `Ctrl` の代わりに `Cmd`(設定ファイル上の `mod`)。
 | `Ctrl+Shift+W` | 今のウィンドウをタブごと閉じる |
 | `Ctrl+Shift+T` | 閉じたタブ(ウィンドウ)を開き直す |
 | `Ctrl+T` | 新しいタブを開く |
+| `Alt+←` / `Alt+→`(HHKB: `Alt+Fn+H` / `Alt+Fn+L`) | 前のページへ戻る / 進む。Alt は一番右下の左 Alt を使う(スペース左の右 Alt は音声入力) |
 | `Ctrl+Tab` / `Ctrl+Shift+Tab` | 右 / 左のタブへ移る |
 | `Ctrl+1`〜`Ctrl+8` / `Ctrl+9` | N 番目のタブ / 一番右のタブへ移る |
 | `Ctrl+Shift+M` | プロフィールのメニューを開いて切り替える |
