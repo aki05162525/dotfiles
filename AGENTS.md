@@ -20,7 +20,8 @@ dotfiles/
 ├─ docs/
 │  ├─ setup.md            # 別マシンでのセットアップ手順
 │  ├─ tool-management.md  # Nix / mise / corepack 等のレイヤー構造
-│  └─ emudhra-ca-incident.md # eMudhra 中間CA 漏洩(2026-10)の対応手順
+│  ├─ emudhra-ca-incident.md # eMudhra 中間CA 漏洩(2026-10)の対応手順
+│  └─ keybindings.md      # マウスを使わない操作のショートカット記録
 ├─ agents/                # 全プロジェクト共通の AI CLI 指示(実体)
 │  ├─ AGENTS.md           # 正本(~/.codex/AGENTS.md)
 │  └─ CLAUDE.md           # @~/.codex/AGENTS.md を import(~/.claude/CLAUDE.md)
